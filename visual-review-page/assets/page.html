@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Page title</title>
+<style>
+:root {
+  --bg: #f4f5f7; --surface: #ffffff; --fg: #16191f; --muted: #5a6170; --line: #dde1e7;
+  --accent: #2c4ad0; --accent-soft: #e7ebfb;
+  --ok: #1f7a4d; --ok-soft: #e2f2e9; --bad: #b0372d; --bad-soft: #f7e4e1; --mark: #e5372a;
+  --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #111318; --surface: #1a1d24; --fg: #e8eaef; --muted: #9aa1ae; --line: #2c313b;
+  --accent: #90a3ff; --accent-soft: #232a49; --ok: #5cc88f; --ok-soft: #17301f; --bad: #f08a7e; --bad-soft: #3a1d1a;
+  color-scheme: dark; } }
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 var(--font); }
+.wrap { max-width: 780px; margin: 0 auto; padding: 0 16px 72px; }
+h1, h2, h3 { margin: 0; line-height: 1.25; text-wrap: balance; }
+h1 { font-size: 28px; font-weight: 600; }
+h2 { font-size: 20px; font-weight: 600; }
+h3 { font-size: 18px; font-weight: 600; }
+p { margin: 0; }
+.label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 500; }
+
+header { display: grid; gap: 14px; padding-top: 32px; }
+.ver { font-size: 13px; color: var(--muted); }
+.ask { background: var(--accent-soft); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; }
+.ask .label { color: var(--accent); }
+section { display: grid; gap: 14px; padding-top: 36px; }
+ul.plain, ol.plain { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+
+/* One item = one decision: visuals, now/after, why, recommendation, question, one answer field. */
+.item { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 12px; }
+.ihead { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: baseline; }
+.num { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.rec b { font-weight: 600; }
+.question { font-weight: 500; }
+
+/* Now / after, or a bad and a good example of the same thing. */
+.tp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.tp > div { border-radius: 10px; padding: 12px 14px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.tp .now { background: var(--bg); }
+.tp .next { background: var(--accent-soft); }
+.tp .next .label { color: var(--accent); }
+.tp .bad { background: var(--bad-soft); } .tp .bad .label { color: var(--bad); }
+.tp .good { background: var(--ok-soft); } .tp .good .label { color: var(--ok); }
+.tp ol, .tp ul { margin: 0; padding-left: 20px; }
+
+/* Media: frames in a grid, a red box over the problem, before/after outlines. */
+.grid2, .grid3, .grid4 { display: grid; gap: 8px; }
+.grid2 { grid-template-columns: repeat(2, 1fr); }
+.grid3 { grid-template-columns: repeat(3, 1fr); }
+.grid4 { grid-template-columns: repeat(4, 1fr); }
+figure { margin: 0; display: grid; gap: 5px; align-content: start; min-width: 0; }
+figure img, figure video { width: 100%; height: auto; display: block; border-radius: 8px; background: #000; }
+figure svg { width: 100%; height: auto; display: block; }
+figcaption { font-size: 13px; color: var(--muted); line-height: 1.35; }
+figure.bad img, figure.bad video { outline: 3px solid var(--bad); }
+figure.good img, figure.good video { outline: 3px solid var(--ok); }
+.shot { position: relative; }
+.shot .mark { position: absolute; border: 3px solid var(--mark); border-radius: 4px; box-shadow: 0 0 0 1px rgba(0,0,0,.3); }
+
+/* One audio player with a variant switch that keeps the playback position. */
+.player { display: grid; gap: 10px; background: var(--bg); border-radius: 10px; padding: 12px; }
+.player .sw { display: flex; flex-wrap: wrap; gap: 6px; }
+.player button { font: 500 14px var(--font); border: 1px solid var(--line); background: var(--surface); color: var(--fg); padding: 7px 12px; border-radius: 8px; cursor: pointer; }
+.player button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.player audio { width: 100%; }
+
+/* Round 2+: what the user wrote and what the agent did, above a fresh empty field. */
+.history { display: grid; gap: 6px; font-size: 15px; }
+.history .mine { background: var(--bg); border-radius: 8px; padding: 8px 12px; }
+.history .reply { border-left: 2px solid var(--accent); padding: 2px 0 2px 10px; }
+
+.answer { display: grid; gap: 6px; }
+textarea { width: 100%; min-height: 46px; resize: vertical; font: 15px/1.45 var(--font); color: var(--fg); background: var(--bg);
+  border: 1px solid var(--line); border-radius: 8px; padding: 9px 11px; }
+textarea:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.astate { font-size: 12px; color: var(--muted); min-height: 1em; }
+.astate.err { color: var(--bad); }
+
+details.box { border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; background: var(--surface); }
+details.box summary { cursor: pointer; font-weight: 500; }
+details.box > :not(summary) { margin-top: 10px; }
+
+@media (max-width: 640px) {
+  .tp { grid-template-columns: 1fr; }
+  .grid3, .grid4 { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<header>
+  <p class="ver">Version 1 · date</p>
+  <h1>What is being decided</h1>
+  <div class="ask">
+    <span class="label">What I need from you</span>
+    <p>Overall recommendation and the decisions requested. Answer in the fields, then tell me in chat:
+      I will revise the plan and show it again; implementation starts only when you explicitly say so.</p>
+  </div>
+</header>
+
+<!-- Example item: copy per decision, give each answer field a stable id that never changes or repeats. -->
+<section>
+  <article class="item">
+    <div class="ihead"><span class="num">1</span><h3>Title says what changes</h3></div>
+
+    <div class="grid2">
+      <figure class="bad">
+        <div class="shot"><img src="v/now.jpg" alt="Now" loading="lazy">
+          <span class="mark" style="left:10%;right:55%;top:60%;height:20%"></span></div>
+        <figcaption>Now: what to look at</figcaption>
+      </figure>
+      <figure class="good">
+        <div class="shot"><img src="v/next.jpg" alt="After" loading="lazy"></div>
+        <figcaption>After: what changes</figcaption>
+      </figure>
+    </div>
+
+    <div class="player">
+      <div class="sw">
+        <button type="button" data-src="v/a.mp3" aria-pressed="true">Variant A</button>
+        <button type="button" data-src="v/b.mp3">Variant B</button>
+      </div>
+      <audio controls preload="none" src="v/a.mp3"></audio>
+    </div>
+
+    <div class="tp">
+      <div class="now"><span class="label">Now</span><p>What happens now, on a real example.</p></div>
+      <div class="next"><span class="label">After</span><p>What will happen, in the user's words.</p></div>
+    </div>
+
+    <p>Why: evidence and how often it happens.</p>
+    <p class="rec"><b>I recommend.</b> The recommendation as a full phrase.</p>
+    <p class="question">The question, if any?</p>
+
+    <!-- Round 2+: keep the history, the field below starts empty. -->
+    <div class="history">
+      <p class="mine">You wrote: …</p>
+      <p class="reply">Agent: what I changed, or why not.</p>
+    </div>
+
+    <div class="answer" data-id="item-1"></div>
+  </article>
+</section>
+
+<section>
+  <h2>Not doing</h2>
+  <ul class="plain"><li>Deliberate exclusion.</li></ul>
+</section>
+
+<section>
+  <h2>Anything else</h2>
+  <div class="answer" data-id="general"></div>
+</section>
+
+</main>
+<script>
+// Labels in the user's language.
+const UI = {
+  placeholder: "Your answer",
+  saving: "Saving…",
+  saved: "Saved",
+  failed: "Not saved. Copy your text so it is not lost",
+};
+
+(() => {
+  const fields = {}, gen = {}, chain = {}, timers = {};
+
+  const post = (id, text) => fetch("answers", {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, text }),
+  }).then(r => { if (!r.ok) throw new Error(r.status); });
+
+  // Writes for one id run in order; "saved" shows only when the acknowledged text is the latest edit.
+  function upload(id) {
+    clearTimeout(timers[id]); delete timers[id];
+    const f = fields[id], g = gen[id], text = f.ta.value;
+    chain[id] = (chain[id] || Promise.resolve()).then(async () => {
+      f.st.textContent = UI.saving; f.st.classList.remove("err");
+      try {
+        await post(id, text);
+        if (gen[id] === g) f.st.textContent = UI.saved;
+      } catch (e) {
+        if (gen[id] === g) { f.st.textContent = UI.failed; f.st.classList.add("err"); }
+      }
+    });
+  }
+
+  document.querySelectorAll(".answer[data-id]").forEach(box => {
+    const id = box.dataset.id;
+    const ta = document.createElement("textarea"), st = document.createElement("span");
+    ta.rows = 2; ta.placeholder = box.dataset.placeholder || UI.placeholder; ta.id = "answer-" + id;
+    st.className = "astate"; st.setAttribute("aria-live", "polite");
+    box.append(ta, st);
+    fields[id] = { ta, st }; gen[id] = 0;
+    ta.addEventListener("input", () => {
+      gen[id]++; st.textContent = ""; st.classList.remove("err");
+      clearTimeout(timers[id]); timers[id] = setTimeout(() => upload(id), 600);
+    });
+  });
+
+  // Send edits still waiting for the debounce when the page is closed.
+  addEventListener("pagehide", () => Object.keys(timers).forEach(id =>
+    navigator.sendBeacon("answers", JSON.stringify({ id, text: fields[id].ta.value }))));
+
+  fetch("answers").then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(saved => {
+    Object.entries(saved).forEach(([id, a]) => {
+      const f = fields[id];
+      if (f && !f.ta.value && gen[id] === 0) { f.ta.value = a.text || ""; if (f.ta.value) f.st.textContent = UI.saved; }
+    });
+  }).catch(() => {});
+
+  document.querySelectorAll(".player").forEach(p => {
+    const audio = p.querySelector("audio"), buttons = [...p.querySelectorAll("button[data-src]")];
+    buttons.forEach(b => b.addEventListener("click", () => {
+      const at = audio.currentTime, playing = !audio.paused;
+      audio.src = b.dataset.src;
+      audio.addEventListener("loadedmetadata", () => { audio.currentTime = at; if (playing) audio.play(); }, { once: true });
+      audio.load();
+      buttons.forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    }));
+  });
+})();
+</script>
+</body>
+</html>

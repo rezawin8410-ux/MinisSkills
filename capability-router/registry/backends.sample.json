@@ -1,0 +1,123 @@
+{
+  "_comment": "Agent runtime backends. aswath-capability delegates work to these instead of using the host's native orchestrator. Each backend is a headless-capable coding agent CLI. 'cmd' is the executable plus the base flags; 'extract' says how to pull the final answer out of the CLI's JSON output.",
+  "backends": {
+    "cmdc": {
+      "label": "Command Code",
+      "cmd": [
+        "cmdc",
+        "-p"
+      ],
+      "description": "Coding agent that continuously learns your taste of writing code. Ships its own 'taste learn' memory, which is a second learning substrate alongside the aswath ledger.",
+      "output_args": [
+        "--output-format",
+        "json"
+      ],
+      "extract": "ndjson_result",
+      "cwd": "inherit",
+      "readonly_args": [
+        "--permission-mode",
+        "dont-ask"
+      ],
+      "edits_args": [
+        "--permission-mode",
+        "accept-edits",
+        "--yolo"
+      ],
+      "extra_args": [
+        "--max-turns",
+        "40",
+        "--tools-all"
+      ],
+      "supports_schema": false,
+      "json_hint": "IMPORTANT - output format overrides any skill's own format: your FINAL output must be a single JSON object and nothing else. No prose before it, no markdown fence, no commentary after it. If a skill you loaded specifies a different output format, follow this instruction instead.",
+      "notes": "NDJSON stream; the final line has type=result and a finalText field. cmdc ships its own skills (it loads hallmark, which has its own output format and its own audit method) and may write scratch files such as .hallmark/ into the working directory - clean them up afterwards. cmdc also has 'cmd taste learn', a second learning substrate alongside the aswath ledger. NOTE 1: cmdc refuses file writes in print mode unless --yolo (--dangerously-skip-permissions) is passed; --permission-mode alone is not enough. NOTE 2: cmdc does NOT reliably follow a constrained fix brief - measured, it ran its own audit and applied different fixes than the confirmed findings. Keep it for exploratory work, not for constrained fixes. NOTE 2: headless runs WITHHOLD some tools (web search/fetch among them). --tools-all re-enables them; keep --permission-mode dont-ask so approval-gated tools stay denied.",
+      "prompt_style": "next",
+      "prompt_flag": "-p",
+      "model_arg": "--model"
+    },
+    "agy": {
+      "label": "agy",
+      "cmd": [
+        "agy",
+        "--print"
+      ],
+      "description": "Agent CLI with an agent registry, MCP server management, plugin install, and native JSON-schema output enforcement.",
+      "output_args": [
+        "--output-format",
+        "json"
+      ],
+      "extract": "json_response",
+      "cwd": "inherit",
+      "readonly_args": [
+        "--mode",
+        "plan",
+        "--dangerously-skip-permissions"
+      ],
+      "edits_args": [
+        "--mode",
+        "accept-edits",
+        "--dangerously-skip-permissions"
+      ],
+      "extra_args": [],
+      "supports_schema": true,
+      "schema_arg": "--json-schema",
+      "json_hint": "Respond with a single JSON object and nothing else. No markdown fence, no commentary.",
+      "notes": "Single JSON object with a 'response' field. With --json-schema the tool layer enforces the schema and returns structured_output - the reliable backend for any role that must return structured data. NOTE: agy auto-denies tool calls in headless mode unless --dangerously-skip-permissions is passed, so a critic cannot read files without it. Read-only roles use --mode plan, which keeps the agent from editing despite the permission bypass. Measured: agy applies a constrained fix brief exactly, changing only the selectors the finding named.",
+      "prompt_style": "attached",
+      "prompt_flag": "--print",
+      "model_arg": "--model"
+    },
+    "agy-wsl": {
+      "label": "agy (WSL)",
+      "cmd": [
+        "wsl",
+        "-e",
+        "<HOME>/.local/bin/agy",
+        "--print"
+      ],
+      "description": "Antigravity agy running inside WSL. Same agent, Linux side. Used as a second opinion on Linux-flavoured problems and as a parallel worker.",
+      "output_args": [
+        "--output-format",
+        "json"
+      ],
+      "extract": "json_response",
+      "cwd": "inherit",
+      "readonly_args": [
+        "--mode",
+        "plan",
+        "--dangerously-skip-permissions"
+      ],
+      "edits_args": [
+        "--mode",
+        "accept-edits",
+        "--dangerously-skip-permissions"
+      ],
+      "extra_args": [],
+      "supports_schema": true,
+      "schema_arg": "--json-schema",
+      "json_hint": "Respond with a single JSON object and nothing else. No markdown fence, no commentary.",
+      "notes": "Runs the Linux-side agy binary. Use for Linux/WSL work or as an independent second opinion on the same task.",
+      "prompt_style": "attached",
+      "prompt_flag": "--print",
+      "model_arg": "--model"
+    }
+  },
+  "role_backends": {
+    "_comment": "Which backend handles which role. agy for structured roles because --json-schema is enforced at the tool layer. agy for editing too: cmdc loads its own skills (hallmark) and runs its OWN audit instead of the brief it was given, so it applies different fixes than the confirmed findings. cmdc remains available as an explicit override for exploratory work.",
+    "structured": "agy",
+    "editing": "agy",
+    "audit": "cmdc"
+  },
+  "defaults": {
+    "backend": "agy",
+    "timeout_s": 900,
+    "retries": 1
+  },
+  "model_tiers": {
+    "_comment": "Which model each ROLE runs on. Criticism needs taste and depth; verification is a narrow text judgement and does not. Splitting them is what makes the delegated loop affordable.",
+    "fast": "gemini-3.8-flash-low",
+    "strong": "gemini-4-argon-high",
+    "cmdc_strong": "deepseek/deepseek-v4.1-flash",
+    "argon_medium": "gemini-4-argon-medium"
+  }
+}

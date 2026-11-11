@@ -1,0 +1,1003 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/RemiPelloux/kill-my-idea/skills/kill/report-data.schema.json",
+  "title": "kill-my-idea report data",
+  "description": "Content of report-data.js (window.KMI_DATA = {...}). report.html renders it. idea = idea.json, verdict = verdict.json, narrative = what the report says. Every section is optional: the HTML hides empty ones.",
+  "type": "object",
+  "required": [
+    "idea",
+    "verdict",
+    "narrative"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^1\\.\\d+$",
+      "description": "The file format that wrote this file. \"1.0\" since kill-my-idea 1.0; files without it are pre-1.0 (run scripts/migrate.py)."
+    },
+    "idea": {
+      "$ref": "idea.schema.json"
+    },
+    "verdict": {
+      "$ref": "verdict.schema.json"
+    },
+    "narrative": {
+      "type": "object",
+      "required": [
+        "answer",
+        "key_findings",
+        "recommendation",
+        "sources"
+      ],
+      "properties": {
+        "answer": {
+          "type": "string",
+          "maxLength": 320,
+          "description": "Answer first: the verdict and why, at most 45 words, with the 1-2 decisive words in **bold**"
+        },
+        "tldr": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5
+        },
+        "lesson": {
+          "type": "string"
+        },
+        "rescue": {
+          "type": "array",
+          "description": "Same objects as verdict.rescue (copy them). Sorted by score_after descending, then doable before hard before very-hard.",
+          "items": {
+            "type": "object",
+            "required": [
+              "change",
+              "why",
+              "score_after",
+              "difficulty"
+            ],
+            "properties": {
+              "change": {
+                "type": "string",
+                "description": "What to change, in one line"
+              },
+              "why": {
+                "type": "string",
+                "description": "Which kill shot it fixes"
+              },
+              "score_after": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100,
+                "description": "Projected score (estimate)"
+              },
+              "difficulty": {
+                "enum": [
+                  "doable",
+                  "hard",
+                  "very-hard"
+                ]
+              },
+              "effort": {
+                "type": "string",
+                "description": "e.g. '2 days', '3 months'"
+              },
+              "cost": {
+                "type": "string"
+              },
+              "requires": {
+                "type": "string"
+              }
+            }
+          },
+          "maxItems": 3
+        },
+        "fact_checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "claim",
+              "status"
+            ],
+            "properties": {
+              "claim": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "true",
+                  "partly",
+                  "false",
+                  "unverified"
+                ],
+                "description": "true = holds, partly = holds with a smaller number or a condition, false = contradicted by a source, unverified = no public evidence either way"
+              },
+              "evidence": {
+                "type": "string"
+              },
+              "source": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "kill_shots": {
+          "type": "object",
+          "description": "Evidence per kill shot, keyed like verdict.kill_shots. Write one entry for every kill shot that was checked, hit or clear, so the reader sees what was looked at.",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "evidence": {
+                "type": "string",
+                "maxLength": 400,
+                "description": "One sentence with the number, the name and the date. For a clear kill shot, what was searched and not found."
+              },
+              "source": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^https?://"
+              },
+              "count": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "description": "saturated_wave: number of look-alike launches found in the window; strong_competitor and free_alternative: number found"
+              },
+              "window": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "saturated_wave: the search window, e.g. '2025-11 to 2026-11'"
+              }
+            },
+            "required": [
+              "evidence"
+            ]
+          }
+        },
+        "customer": {
+          "type": "object",
+          "properties": {
+            "segment": {
+              "type": "string"
+            },
+            "pain": {
+              "type": "string"
+            },
+            "today": {
+              "type": "string"
+            }
+          }
+        },
+        "use_cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "who_pays": {
+                "type": "string"
+              },
+              "effort": {
+                "type": "string"
+              },
+              "best": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "competitors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^https?://"
+              },
+              "price_low": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "price_high": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "currency": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "traction": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 1,
+                "maximum": 5,
+                "description": "1 = no visible users, 2 = a few reviews or a small community, 3 = thousands of users or 100+ reviews, 4 = well funded or 100k+ users, 5 = market leader. Estimate from visible signals; say which in traction_note."
+              },
+              "traction_note": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "gap": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "free": {
+                "type": "boolean"
+              },
+              "country": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^[A-Z]{2}$"
+              },
+              "price_source": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^https?://",
+                "description": "The pricing page the price was read from"
+              },
+              "price_period": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "enum": [
+                  "month",
+                  "year",
+                  "one-off",
+                  "per-use",
+                  "per-seat-month",
+                  null
+                ]
+              },
+              "price_as_of": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "YYYY-MM when the price was read"
+              }
+            }
+          },
+          "description": "At least 5 for kill, 10 for deepdive, including every free alternative found. Prices come from the competitor's pricing page, dated."
+        },
+        "customer_voice": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "quote",
+              "source"
+            ],
+            "properties": {
+              "quote": {
+                "type": "string",
+                "description": "Verbatim"
+              },
+              "source": {
+                "type": "string",
+                "pattern": "^https?://"
+              },
+              "pain": {
+                "type": "string"
+              },
+              "date": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "When it was posted, YYYY-MM"
+              }
+            }
+          },
+          "description": "Verbatim quotes from reviews and forums, each with its link. 15 or more for deepdive. Group by pain."
+        },
+        "scenarios": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Pessimistic, Base, Optimistic"
+              },
+              "customers_month": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "revenue_month": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "costs_month": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              },
+              "note": {
+                "type": "string"
+              }
+            }
+          },
+          "minItems": 3,
+          "maxItems": 3,
+          "description": "Three monthly scenarios (pessimistic, base, optimistic) with customers, revenue and costs. The base scenario uses the metrics table's inputs."
+        },
+        "currency": {
+          "type": "string",
+          "description": "Currency of scenarios, e.g. USD"
+        },
+        "risks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "risk",
+              "likelihood",
+              "impact"
+            ],
+            "properties": {
+              "risk": {
+                "type": "string"
+              },
+              "likelihood": {
+                "enum": [
+                  "L",
+                  "M",
+                  "H"
+                ]
+              },
+              "impact": {
+                "enum": [
+                  "L",
+                  "M",
+                  "H"
+                ]
+              },
+              "mitigation": {
+                "type": "string"
+              },
+              "source": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^https?://"
+              }
+            }
+          }
+        },
+        "test_plan": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "when",
+              "step"
+            ],
+            "properties": {
+              "when": {
+                "type": "string",
+                "maxLength": 20,
+                "description": "e.g. 'Day 1', 'Day 3-4'"
+              },
+              "step": {
+                "type": "string"
+              },
+              "verify": {
+                "type": "string",
+                "maxLength": 200,
+                "description": "The signal that proves the step worked, with a number"
+              }
+            }
+          }
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "url",
+              "title",
+              "accessed",
+              "tier"
+            ],
+            "properties": {
+              "url": {
+                "type": "string",
+                "pattern": "^https?://"
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 140,
+                "description": "Publisher and title, e.g. 'INSEE, Household equipment 2025'"
+              },
+              "supports": {
+                "type": "string",
+                "maxLength": 200,
+                "description": "Which number or claim this source backs"
+              },
+              "accessed": {
+                "type": "string",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+              },
+              "published": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "Publication date when known (YYYY or YYYY-MM). Prices and competitor data older than 24 months are marked dated."
+              },
+              "tier": {
+                "enum": [
+                  "primary",
+                  "secondary",
+                  "tertiary"
+                ],
+                "description": "primary: official statistics, laws, filings, pricing pages, platform data, first-party reports. secondary: industry reports, reputable press, academic papers. tertiary: blogs, listicles, forum and social posts (demand signals and customer voice only)."
+              }
+            }
+          },
+          "description": "Every source cited in the report, deduplicated by URL. Minimum 20 for kill, 40 for deepdive, 10 for roast. Each has a tier."
+        },
+        "key_findings": {
+          "type": "array",
+          "maxItems": 3,
+          "description": "Exactly 3 findings that decide the verdict, most decisive first. Each has a source.",
+          "items": {
+            "type": "object",
+            "required": [
+              "title",
+              "detail",
+              "source"
+            ],
+            "properties": {
+              "title": {
+                "type": "string",
+                "maxLength": 70
+              },
+              "detail": {
+                "type": "string",
+                "maxLength": 220
+              },
+              "source": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "pattern": "^https?://",
+                "description": "null only when the finding is an estimate; then detail says so"
+              }
+            }
+          },
+          "minItems": 3
+        },
+        "recommendation": {
+          "type": "string",
+          "maxLength": 260,
+          "description": "One action, stated as a decision, e.g. 'Do not build the app. Test a done-for-you service at EUR 149 for 7 days.'"
+        },
+        "steelman": {
+          "type": "string",
+          "maxLength": 400,
+          "description": "The strongest case FOR the idea in 1-2 sentences, and what the evidence says about it. Guards against killing by reflex."
+        },
+        "premortem": {
+          "type": "array",
+          "maxItems": 3,
+          "description": "It's 12 months later and the idea failed: the 3 most likely causes, most likely first. Each links to a kill shot or a sub-score of this report and names an early warning signal. Optional for old reports; the kill and deepdive skills always write it.",
+          "items": {
+            "type": "object",
+            "required": [
+              "cause",
+              "linked_to",
+              "likelihood",
+              "early_signal"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "cause": {
+                "type": "string",
+                "maxLength": 160,
+                "description": "Why it failed, in one sentence"
+              },
+              "linked_to": {
+                "type": "string",
+                "description": "A key of verdict.kill_shots (e.g. 'no_distribution') or a sub-score key of verdict.criteria_detail (e.g. 'ltv_cac')"
+              },
+              "likelihood": {
+                "enum": [
+                  "L",
+                  "M",
+                  "H"
+                ]
+              },
+              "early_signal": {
+                "type": "string",
+                "maxLength": 160,
+                "description": "What you would see in the first 30 days, with a number when possible"
+              }
+            }
+          }
+        },
+        "why_now": {
+          "type": "object",
+          "required": [
+            "verdict",
+            "changes"
+          ],
+          "additionalProperties": false,
+          "description": "What changed recently (tech, regulation, platform, price, behaviour) that makes this possible now. Optional for old reports; the kill and deepdive skills always write it.",
+          "properties": {
+            "verdict": {
+              "enum": [
+                "now",
+                "early",
+                "late",
+                "unclear"
+              ],
+              "description": "now = the window is open; early = the market is not ready; late = the window is closing or saturated; unclear = no evidence either way"
+            },
+            "changes": {
+              "type": "array",
+              "maxItems": 5,
+              "items": {
+                "type": "object",
+                "required": [
+                  "what",
+                  "when",
+                  "source"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "what": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "The change, in one sentence"
+                  },
+                  "when": {
+                    "type": "string",
+                    "maxLength": 40,
+                    "description": "YYYY or YYYY-MM"
+                  },
+                  "source": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "pattern": "^https?://"
+                  }
+                }
+              }
+            },
+            "note": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "One sentence explaining the verdict"
+            }
+          }
+        },
+        "icp": {
+          "type": "object",
+          "required": [
+            "who",
+            "where",
+            "pays_for_today",
+            "budget",
+            "trigger"
+          ],
+          "additionalProperties": false,
+          "description": "Ideal customer profile: who buys first and where to reach them. Optional for old reports; the kill and deepdive skills always write it.",
+          "properties": {
+            "who": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "A precise segment: role, size, situation"
+            },
+            "where": {
+              "type": "array",
+              "maxItems": 5,
+              "items": {
+                "type": "string",
+                "maxLength": 120
+              },
+              "description": "Communities, platforms or events where they can be reached"
+            },
+            "pays_for_today": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "What they already pay for to solve this, with the price"
+            },
+            "budget": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "What they can spend, with currency and period, or 'unknown'"
+            },
+            "trigger": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "The moment they start looking for a solution"
+            }
+          }
+        },
+        "language": {
+          "type": "string",
+          "pattern": "^[a-z]{2}$",
+          "description": "Same as idea.language"
+        },
+        "personas": {
+          "type": "array",
+          "maxItems": 3,
+          "description": "deepdive go to market: 2-3 personas built from the customer voice",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "role",
+              "pain_quotes",
+              "trigger",
+              "where"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 60
+              },
+              "role": {
+                "type": "string",
+                "maxLength": 120
+              },
+              "context": {
+                "type": "string",
+                "maxLength": 240
+              },
+              "pain_quotes": {
+                "type": "array",
+                "minItems": 3,
+                "maxItems": 6,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "quote",
+                    "url"
+                  ],
+                  "properties": {
+                    "quote": {
+                      "type": "string",
+                      "maxLength": 300
+                    },
+                    "url": {
+                      "type": "string",
+                      "pattern": "^https?://"
+                    }
+                  }
+                }
+              },
+              "uses_today": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "pays_today": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "trigger": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "objections": {
+                "type": "array",
+                "maxItems": 3,
+                "items": {
+                  "type": "string",
+                  "maxLength": 160
+                }
+              },
+              "where": {
+                "type": "array",
+                "maxItems": 5,
+                "items": {
+                  "type": "string",
+                  "maxLength": 120
+                }
+              }
+            }
+          }
+        },
+        "strategies": {
+          "type": "array",
+          "maxItems": 3,
+          "description": "deepdive go to market: 2-3 ways in, exactly one recommended",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "segment",
+              "channel",
+              "score_after",
+              "recommended"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 80
+              },
+              "segment": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "channel": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "price": {
+                "type": "string",
+                "maxLength": 80
+              },
+              "cost_first_10": {
+                "type": "string",
+                "maxLength": 160
+              },
+              "risks": {
+                "type": "string",
+                "maxLength": 240
+              },
+              "score_after": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "recommended": {
+                "type": "boolean"
+              },
+              "why": {
+                "type": "string",
+                "maxLength": 240
+              }
+            }
+          }
+        },
+        "promotion": {
+          "type": "array",
+          "maxItems": 5,
+          "description": "deepdive go to market: 3-5 messaging angles tied to a pain and a persona",
+          "items": {
+            "type": "object",
+            "required": [
+              "angle",
+              "persona",
+              "pain",
+              "headline",
+              "proof",
+              "proof_source",
+              "channel"
+            ],
+            "properties": {
+              "angle": {
+                "type": "string",
+                "maxLength": 80
+              },
+              "persona": {
+                "type": "string",
+                "maxLength": 60
+              },
+              "pain": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "headline": {
+                "type": "string",
+                "maxLength": 70
+              },
+              "proof": {
+                "type": "string",
+                "maxLength": 200
+              },
+              "proof_source": {
+                "type": "string",
+                "pattern": "^https?://"
+              },
+              "channel": {
+                "type": "string",
+                "maxLength": 80
+              },
+              "beat": {
+                "type": "array",
+                "maxItems": 3,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "competitor",
+                    "message",
+                    "url"
+                  ],
+                  "properties": {
+                    "competitor": {
+                      "type": "string",
+                      "maxLength": 60
+                    },
+                    "message": {
+                      "type": "string",
+                      "maxLength": 200
+                    },
+                    "url": {
+                      "type": "string",
+                      "pattern": "^https?://"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "landing": {
+          "type": "object",
+          "description": "deepdive go to market: the landing page for the 7-day test",
+          "properties": {
+            "headline": {
+              "type": "string",
+              "maxLength": 90
+            },
+            "subhead": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "sections": {
+              "type": "array",
+              "maxItems": 5,
+              "items": {
+                "type": "string",
+                "maxLength": 160
+              }
+            },
+            "cta": {
+              "type": "string",
+              "maxLength": 40
+            }
+          }
+        },
+        "branding": {
+          "type": "object",
+          "description": "deepdive go to market: positioning, 5 names checked by search only, tone",
+          "required": [
+            "positioning",
+            "names"
+          ],
+          "properties": {
+            "positioning": {
+              "type": "object",
+              "required": [
+                "for",
+                "category",
+                "difference"
+              ],
+              "properties": {
+                "for": {
+                  "type": "string",
+                  "maxLength": 160
+                },
+                "category": {
+                  "type": "string",
+                  "maxLength": 80
+                },
+                "difference": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "proof": {
+                  "type": "string",
+                  "maxLength": 200
+                }
+              }
+            },
+            "names": {
+              "type": "array",
+              "minItems": 5,
+              "maxItems": 5,
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "domain_com",
+                  "trademark",
+                  "checked"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 40
+                  },
+                  "domain_com": {
+                    "enum": [
+                      "available",
+                      "taken",
+                      "unknown"
+                    ]
+                  },
+                  "domain_local": {
+                    "enum": [
+                      "available",
+                      "taken",
+                      "unknown"
+                    ]
+                  },
+                  "trademark": {
+                    "enum": [
+                      "clear",
+                      "conflict",
+                      "unknown"
+                    ]
+                  },
+                  "trademark_source": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "pattern": "^https?://"
+                  },
+                  "handles": {
+                    "type": "string",
+                    "maxLength": 200
+                  },
+                  "checked": {
+                    "type": "string",
+                    "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                  }
+                }
+              }
+            },
+            "tone": {
+              "type": "array",
+              "maxItems": 5,
+              "items": {
+                "type": "string",
+                "maxLength": 40
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

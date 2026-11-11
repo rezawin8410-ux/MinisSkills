@@ -1,0 +1,21 @@
+# Generated output (rebuilt by scripts; their sources are versioned)
+site/
+{{MAP_DIR}}/
+__pycache__/
+*.pyc
+
+# Copy-suffix backups are not used for files in this repository (git is the history)
+*.bak
+*.bak-*
+*.orig
+*.rej
+*~
+.DS_Store
+
+# Local state and credentials: never commit
+.env
+.env.*
+*.pem
+*.key
+*.kdbx
+.myco-notes.local

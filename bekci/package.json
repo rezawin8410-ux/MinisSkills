@@ -1,0 +1,72 @@
+{
+  "name": "bekci",
+  "version": "0.1.3",
+  "description": "Zero-dependency, offline security scanner for AI agent setups: skills, MCP servers, hooks, permissions and instruction files for Claude Code, Codex, Cursor, Gemini CLI and more.",
+  "keywords": [
+    "security",
+    "scanner",
+    "mcp",
+    "model-context-protocol",
+    "claude-code",
+    "agent-skills",
+    "codex",
+    "cursor",
+    "gemini-cli",
+    "prompt-injection",
+    "supply-chain",
+    "sarif",
+    "ai-agents"
+  ],
+  "homepage": "https://github.com/YusufSizmaz/bekci#readme",
+  "bugs": "https://github.com/YusufSizmaz/bekci/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YusufSizmaz/bekci.git"
+  },
+  "license": "MIT",
+  "author": "Yusuf Sizmaz (https://github.com/YusufSizmaz)",
+  "type": "module",
+  "bin": {
+    "bekci": "dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.18"
+  },
+  "scripts": {
+    "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.json && node -e \"require('fs').chmodSync('dist/cli.js',0o755)\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.test.json",
+    "pretest": "npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "npm run build && vitest run --coverage",
+    "docs": "npm run build && node scripts/gen-rules-doc.mjs",
+    "docs:check": "npm run docs && git diff --exit-code -- docs/rules.md",
+    "demo": "npm run build && node scripts/render-demo.mjs",
+    "selfscan": "node dist/cli.js . --no-user",
+    "prepublishOnly": "npm run typecheck && npm test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "version": "node scripts/bump-docs.mjs && git add README.md README.tr.md CHANGELOG.md .github/ISSUE_TEMPLATE assets/demo.svg"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@vitest/coverage-v8": "^5.1.0",
+    "prettier": "^3.9.10",
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.0"
+  }
+}

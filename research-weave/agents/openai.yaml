@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Weave · 论文淘金"
+  short_description: "Find papers that change your research decisions"
+  default_prompt: "Use $research-weave to map the evidence around my research question, prioritize reading, and test apparent contradictions."

@@ -1,0 +1,3 @@
+#!/bin/sh
+# notes-commit: launcher for notes_commit.py (the implementation, shared by Linux, macOS and Windows).
+exec "$(cd "$(dirname "$0")" && pwd -P)/_run" notes_commit.py "$@"

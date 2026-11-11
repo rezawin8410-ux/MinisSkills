@@ -1,0 +1,237 @@
+{
+  "schema": 1,
+  "skills": {
+    "caveman": {
+      "accepts": 3,
+      "rejects": 0,
+      "partials": 0,
+      "score": 75,
+      "notes": [
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        }
+      ]
+    },
+    "mcode-tools-master": {
+      "accepts": 6,
+      "rejects": 0,
+      "partials": 0,
+      "score": 86,
+      "notes": [
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        }
+      ]
+    },
+    "diagnosing-bugs": {
+      "accepts": 1,
+      "rejects": 0,
+      "partials": 0,
+      "score": 50,
+      "notes": [
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        }
+      ]
+    },
+    "brainstorming": {
+      "accepts": 0,
+      "rejects": 1,
+      "partials": 0,
+      "score": -50,
+      "notes": [
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        }
+      ]
+    },
+    "a2a-orchestrator": {
+      "accepts": 1,
+      "rejects": 0,
+      "partials": 0,
+      "score": 50,
+      "notes": [
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        }
+      ]
+    },
+    "graphify": {
+      "accepts": 1,
+      "rejects": 0,
+      "partials": 0,
+      "score": 50,
+      "notes": [
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        }
+      ]
+    },
+    "impeccable": {
+      "accepts": 2,
+      "rejects": 0,
+      "partials": 0,
+      "score": 67,
+      "notes": [
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        }
+      ]
+    },
+    "anatomy": {
+      "accepts": 1,
+      "rejects": 0,
+      "partials": 0,
+      "score": 50,
+      "notes": [
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        }
+      ]
+    },
+    "learn-by-doing": {
+      "accepts": 1,
+      "rejects": 0,
+      "partials": 0,
+      "score": 50,
+      "notes": [
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        }
+      ]
+    },
+    "diagram-explainer": {
+      "accepts": 1,
+      "rejects": 0,
+      "partials": 0,
+      "score": 50,
+      "notes": [
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        }
+      ]
+    },
+    "find-skills": {
+      "accepts": 1,
+      "rejects": 0,
+      "partials": 0,
+      "score": 50,
+      "notes": [
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        }
+      ]
+    },
+    "ponytail": {
+      "accepts": 1,
+      "rejects": 0,
+      "partials": 0,
+      "score": 50,
+      "notes": [
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        }
+      ]
+    },
+    "frontend-design": {
+      "accepts": 1,
+      "rejects": 1,
+      "partials": 0,
+      "score": 0,
+      "notes": [
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        },
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        }
+      ]
+    },
+    "browser-use:control-in-app-browser": {
+      "accepts": 3,
+      "rejects": 0,
+      "partials": 0,
+      "score": 75,
+      "notes": [
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        }
+      ]
+    },
+    "setup-pstack": {
+      "accepts": 1,
+      "rejects": 0,
+      "partials": 0,
+      "score": 50,
+      "notes": [
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        }
+      ]
+    },
+    "minimax-code-product": {
+      "accepts": 1,
+      "rejects": 0,
+      "partials": 0,
+      "score": 50,
+      "notes": [
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        }
+      ]
+    },
+    "composio": {
+      "accepts": 0,
+      "rejects": 1,
+      "partials": 0,
+      "score": -50,
+      "notes": [
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        }
+      ]
+    },
+    "gws": {
+      "accepts": 0,
+      "rejects": 1,
+      "partials": 0,
+      "score": -50,
+      "notes": [
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        }
+      ]
+    },
+    "git-author-<user>": {
+      "accepts": 1,
+      "rejects": 0,
+      "partials": 0,
+      "score": 50,
+      "notes": [
+        {
+          "note": "[redacted]",
+          "at": "2026-11-09T20:32:40"
+        }
+      ]
+    }
+  }
+}

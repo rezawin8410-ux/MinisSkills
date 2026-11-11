@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' file: 'sha256-imWQwu2K/LgxHt/veDwhYfFrO0v8HLtmBR3xEmnv/Io='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>kill-my-idea board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="board-data.js"></script>
+<style>
+/* Design system: ui-ux-pro-max "Data-Dense Dashboard" — same tokens as skills/kill/report.html */
+:root{
+  --bg:#F8FAFC; --card:#FFFFFF; --fg:#0F172A; --muted:#E9EEF6; --muted-fg:#475569; --border:#DBEAFE; --line:#E2E8F0;
+  --primary:#1E40AF; --secondary:#3B82F6; --on-primary:#FFFFFF;
+  --go:#15803D; --go-bg:#DCFCE7; --go-fill:#22C55E; --pivot:#C2410C; --pivot-bg:#FFEDD5; --pivot-fill:#F59E0B; --nogo:#DC2626; --nogo-bg:#FEE2E2; --nogo-fill:#EF4444;
+  --shadow:0 1px 2px rgba(15,23,42,.06),0 8px 24px -12px rgba(15,23,42,.12);
+  --shadow-h:0 2px 4px rgba(15,23,42,.06),0 18px 40px -16px rgba(30,64,175,.28);
+  --radius:14px; --sans:"Fira Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"Fira Code",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --s1:8px; --s2:16px; --s3:24px; --s4:32px; --s5:48px; --s6:64px;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0B1220; --card:#111A2E; --fg:#E2E8F0; --muted:#1A2540; --muted-fg:#94A3B8; --border:#1E2B47; --line:#1E293B;
+  --primary:#60A5FA; --secondary:#93C5FD; --on-primary:#0B1220;
+  --go:#4ADE80; --go-bg:#052E1A; --go-fill:#22C55E; --pivot:#FBBF24; --pivot-bg:#2A1A06; --pivot-fill:#F59E0B; --nogo:#F87171; --nogo-bg:#3A0D0D; --nogo-fill:#EF4444;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6);
+  --shadow-h:0 2px 4px rgba(0,0,0,.4),0 18px 40px -16px rgba(0,0,0,.8);
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+::selection{background:var(--primary);color:var(--on-primary)}
+a{color:var(--primary);text-underline-offset:3px;text-decoration-thickness:1px}
+:focus-visible{outline:2px solid var(--secondary);outline-offset:2px;border-radius:6px}
+button{font:inherit;cursor:pointer;color:inherit}
+.num{font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums}
+.ic{width:16px;height:16px;flex:none;vertical-align:-3px}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar{max-width:1280px;margin:0 auto;padding:12px var(--s3);display:flex;align-items:center;gap:var(--s2)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;color:var(--fg);text-decoration:none;white-space:nowrap}
+.brand svg{width:28px;height:28px}
+.topbar .t{flex:1;min-width:0;color:var(--muted-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:15px}
+.gen{font:500 13px var(--mono);color:var(--muted-fg);white-space:nowrap}
+
+main{max-width:1280px;margin:0 auto;padding:var(--s4) var(--s3) var(--s6)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);min-width:0}
+h1{font:700 clamp(30px,4vw,44px)/1.12 var(--sans);letter-spacing:-.02em;margin:0 0 8px}
+.sub{color:var(--muted-fg);margin:0;max-width:70ch}
+
+/* summary */
+.head{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:var(--s4);align-items:end;margin-bottom:var(--s4)}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.stat{padding:14px 16px}
+.stat .k{display:flex;align-items:center;gap:6px;font:500 13px var(--sans);color:var(--muted-fg)}
+.stat .v{font:600 30px/1.1 var(--mono);margin-top:6px;letter-spacing:-.02em}
+.stat.GO .v{color:var(--go)} .stat.PIVOT .v{color:var(--pivot)} .stat.NO-GO .v{color:var(--nogo)}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.d-GO{background:var(--go-fill)} .d-PIVOT{background:var(--pivot-fill)} .d-NO-GO{background:var(--nogo-fill)} .d-all{background:var(--primary)}
+.dist{grid-column:1/-1;display:flex;height:8px;border-radius:99px;overflow:hidden;background:var(--muted);gap:2px}
+.dist span{display:block;height:100%}
+
+/* toolbar */
+.bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:12px;margin-bottom:var(--s3)}
+.grp{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.lbl{font:600 12px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--muted-fg);margin-right:4px}
+.chip{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-weight:500;font-size:14px;transition:background .2s,border-color .2s,color .2s}
+.chip:hover{border-color:var(--secondary)}
+.chip[aria-pressed="false"]{color:var(--muted-fg);background:transparent}
+.chip[aria-pressed="false"] .dot{opacity:.35}
+.chip[aria-pressed="true"]{background:var(--muted);border-color:var(--border)}
+.chip .n{font:500 12px var(--mono);color:var(--muted-fg)}
+.seg{display:inline-flex;padding:3px;border-radius:12px;background:var(--muted);gap:2px}
+.seg button{border:0;background:transparent;min-height:32px;padding:0 12px;border-radius:9px;font-size:14px;font-weight:500;color:var(--muted-fg);transition:background .2s,color .2s}
+.seg button[aria-pressed="true"]{background:var(--card);color:var(--fg);box-shadow:0 1px 2px rgba(15,23,42,.12)}
+.count{font:500 13px var(--sans);color:var(--muted-fg);margin:0 0 12px}
+
+/* idea cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:var(--s3)}
+.idea{position:relative;display:flex;flex-direction:column;gap:16px;padding:var(--s3);overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s}
+.idea::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--vc,var(--primary))}
+.idea:hover{transform:translateY(-2px);box-shadow:var(--shadow-h);border-color:var(--border)}
+.idea.stale{opacity:.82}
+.ihead{display:grid;grid-template-columns:72px minmax(0,1fr);gap:16px;align-items:center;padding-right:24px}
+.ring{width:72px;height:72px}
+.ring .rn{font:600 22px var(--mono);fill:var(--fg)}
+.ttl{font:600 18px/1.3 var(--sans);margin:0 0 6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.tags{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.badge{display:inline-flex;align-items:center;gap:5px;font:600 12px var(--sans);padding:3px 9px;border-radius:999px;white-space:nowrap}
+.b-GO{color:var(--go);background:var(--go-bg)} .b-PIVOT{color:var(--pivot);background:var(--pivot-bg)} .b-NO-GO{color:var(--nogo);background:var(--nogo-bg)}
+.b-doable{color:var(--go);background:var(--go-bg)} .b-hard{color:var(--pivot);background:var(--pivot-bg)} .b-very-hard{color:var(--nogo);background:var(--nogo-bg)}
+.b-neutral{color:var(--muted-fg);background:var(--muted)}
+.b-stale{color:var(--pivot);background:transparent;border:1px dashed color-mix(in srgb,var(--pivot) 60%,transparent)}
+.conf{display:inline-flex;align-items:center;gap:6px;font:500 12px var(--sans);color:var(--muted-fg)}
+.conf i{display:inline-flex;gap:2px} .conf i b{width:4px;height:10px;border-radius:2px;background:var(--line)} .conf i b.on{background:var(--primary)}
+.facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.facts div{background:var(--card);padding:10px 12px;min-width:0}
+.facts dt{font:500 12px var(--sans);color:var(--muted-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.facts dd{margin:2px 0 0;font:600 16px var(--mono);white-space:nowrap}
+.facts dd .u{font:400 12px var(--sans);color:var(--muted-fg);margin-left:2px}
+.unk{color:var(--muted-fg);font:italic 400 14px var(--sans)}
+.blk .k{display:flex;align-items:center;gap:6px;font:600 12px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--muted-fg);margin-bottom:4px}
+.blk p{margin:0;font-size:15px;line-height:1.5;overflow-wrap:anywhere}
+.ks .k{color:var(--nogo)}
+.rx{padding:12px 14px;border-radius:10px;background:var(--bg);border:1px solid var(--line)}
+.rx .k{color:var(--primary)}
+.delta{display:flex;align-items:center;gap:10px;margin-top:10px;flex-wrap:wrap}
+.delta .to{font:600 15px var(--mono)}
+.track{position:relative;height:8px;border-radius:99px;background:var(--muted);margin-top:10px}
+.track span{position:absolute;top:0;bottom:0;border-radius:99px}
+.track i{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--card);opacity:.9}
+.ctry{display:flex;flex-wrap:wrap;gap:6px}
+.ctry span{font:500 12px var(--mono);padding:2px 8px;border-radius:6px;background:var(--muted);color:var(--muted-fg)}
+.foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--muted-fg)}
+.slug{font:400 12px var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.open{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:10px;border:1px solid var(--border);color:var(--primary);font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap;transition:background .2s,border-color .2s}
+.open:hover{background:var(--muted);border-color:var(--secondary)}
+.nolink{font-size:13px;color:var(--muted-fg);white-space:nowrap}
+.rank{position:absolute;top:14px;right:16px;font:600 12px var(--mono);color:var(--muted-fg)}
+.empty,.err{padding:var(--s4);text-align:center}
+.err{max-width:560px;margin:20vh auto;text-align:left}
+.empty h2,.err h2{font:600 20px var(--sans);margin:0 0 6px}
+.empty p,.err p{color:var(--muted-fg);margin:0 auto 14px}
+.reset{min-height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--border);background:var(--card);font-weight:500}
+/* dashboard: focus + patterns */
+.dash{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:var(--s3);margin-bottom:var(--s3);align-items:start}
+.panel{padding:var(--s3);display:flex;flex-direction:column;gap:14px}
+.panel h2{display:flex;align-items:center;gap:8px;font:600 13px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--muted-fg);margin:0}
+.focus{position:relative;overflow:hidden}
+.focus::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--vc,var(--primary))}
+.fhead{display:grid;grid-template-columns:72px minmax(0,1fr);gap:16px;align-items:center}
+.fttl{font:600 22px/1.25 var(--sans);margin:0 0 6px;overflow-wrap:anywhere}
+.fl{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:6px 14px;margin:0;font-size:15px}
+.fl dt{color:var(--muted-fg);font-weight:500}
+.fl dd{margin:0;overflow-wrap:anywhere}
+.fl dd.dl{font:600 15px var(--mono);color:var(--fg)}
+.pats{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.pat{display:grid;grid-template-columns:minmax(0,1fr) 56px;align-items:center;gap:6px 12px;width:100%;text-align:left;border:1px solid transparent;background:transparent;border-radius:10px;padding:8px 10px;transition:background .2s,border-color .2s}
+.pat:hover{background:var(--muted)}
+.pat[aria-pressed="true"]{background:var(--muted);border-color:var(--border)}
+.pat .pl{font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pat .pn{font:500 13px var(--mono);color:var(--muted-fg);text-align:right}
+.pat .pb{grid-column:1/-1;height:6px;border-radius:99px;background:var(--muted);overflow:hidden}
+.pat .pb span{display:block;height:100%;border-radius:99px;background:var(--nogo-fill)}
+.pat.zero .pb span{background:var(--go-fill)}
+.hint{font-size:13px;color:var(--muted-fg);margin:0}
+.spark{display:flex;align-items:center;gap:10px;font:500 13px var(--mono);color:var(--muted-fg)}
+.spark svg{width:96px;height:26px;flex:none;overflow:visible}
+.top .blink{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:10px;border:1px solid var(--border);color:var(--primary);font-weight:600;font-size:14px;text-decoration:none;white-space:nowrap}
+.top .blink:hover{background:var(--muted)}
+.dash.one{grid-template-columns:minmax(0,1fr)}
+.dash.one .pats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 24px}
+@media (max-width:1024px){.dash{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){.dash.one .pats{grid-template-columns:minmax(0,1fr)}}
+footer{max-width:1280px;margin:0 auto;padding:0 var(--s3) var(--s5);color:var(--muted-fg);font-size:13px}
+
+@media (prefers-reduced-motion:no-preference){
+  .grid .idea{animation:rise .45s cubic-bezier(.22,1,.36,1) both;animation-delay:var(--d,0ms)}
+  @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:1024px){.head{grid-template-columns:1fr;align-items:start}}
+@media (max-width:768px){main{padding:var(--s3) var(--s2) var(--s5)} .topbar{padding-left:var(--s2);padding-right:var(--s2)} .topbar .t{display:none} .bar{flex-direction:column;align-items:stretch} .bar .grp{align-items:flex-start} .seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%} .seg button{padding:0 8px}}
+@media (max-width:480px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))} .grid{grid-template-columns:minmax(0,1fr)} .idea{padding:var(--s2)} .facts dd{font-size:15px}}
+@media print{.top,.bar{display:none} .card{box-shadow:none;break-inside:avoid} .idea{opacity:1}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(() => {
+"use strict";
+const app = document.getElementById("app");
+/* safe-render: every innerHTML below is built only from esc()'d strings, Number()s and whitelisted enums */
+const fail = (title, detail) => { app.innerHTML = '<div class="err card"><h2></h2><p></p></div>'; /* safe-render */ app.querySelector("h2").textContent = title; app.querySelector("p").textContent = detail; };
+/* data: an inline JSON block (standalone export) wins over board-data.js */
+let D = window.KMI_BOARD;
+const jb = document.getElementById("kmi-board");
+if (jb) { try { D = JSON.parse(jb.textContent); } catch (e) { fail("Board data is not valid JSON", "The #kmi-board block could not be parsed. Run /kill-my-idea:compare again."); return; } }
+if (!D || typeof D !== "object" || !Array.isArray(D.ideas)) { fail("Board data not found", "Keep board.html and board-data.js in the same folder, or run /kill-my-idea:compare again."); return; }
+try {
+const esc = s => String(s ?? "").slice(0, 2000).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const num = v => (v === null || v === undefined || v === "" || typeof v === "boolean") ? null : (Number.isFinite(Number(v)) ? Number(v) : null);
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const pick = (v, list, dflt) => list.includes(v) ? v : dflt;
+const DATE_RX = /^\d{4}-\d{2}-\d{2}/;
+/* security: only same-folder relative paths — no scheme, no leading slash or backslash, no '..' segment */
+const safeRel = p => { if (typeof p !== "string" || !p || p.length > 300) return null;
+  if (/[\u0000-\u001f\\:]/.test(p) || /^[\/#?]/.test(p.trim()) || p !== p.trim()) return null;
+  if (p.split(/[\/?#]/).some(seg => seg === ".." || /^%2e%2e$/i.test(seg))) return null;
+  return encodeURI(p); };
+const vlabel = s => s >= 70 ? "GO" : s >= 50 ? "PIVOT" : "NO-GO";
+const VC = { "GO": "var(--go-fill)", "PIVOT": "var(--pivot-fill)", "NO-GO": "var(--nogo-fill)" };
+const CONF = { high: 3, medium: 2, low: 1 };
+const KS = { free_alternative: "Free alternative", strong_competitor: "Strong direct competitor", graveyard: "Failed attempts before", no_distribution: "No distribution channel", costs_eat_margin: "Costs eat the margin", weak_demand: "Weak or falling demand", legal_platform_risk: "Legal or platform risk", saturated_wave: "Saturated wave of look-alike launches" };
+const DIFF = { doable: "Doable", hard: "Hard", "very-hard": "Very hard" };
+const L = { check: '<path d="M20 6 9 17l-5-5"/>', x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>', rotate: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+  alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>', arrow: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+  life: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/>',
+  target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>', note: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h6"/><path d="M8 13h8"/><path d="M8 17h5"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>', layers: '<path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/>' };
+const ic = (n, sz = 16) => `<svg class="ic" width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${L[n]}</svg>`;
+const VICON = { "GO": "check", "PIVOT": "rotate", "NO-GO": "x" };
+
+/* normalise: from here on every rendered value is an escaped string, a Number or a whitelisted enum */
+const ideas = D.ideas.slice(0, 300).filter(x => x && typeof x === "object").map((x, i) => {
+  const score = clamp(Math.round(num(x.score) ?? 0), 0, 100);
+  const r = x.best_rescue && typeof x.best_rescue === "object" ? x.best_rescue : null;
+  const evaluated = typeof x.evaluated === "string" && DATE_RX.test(x.evaluated) ? x.evaluated.slice(0, 10) : null;
+  return { i, score, verdict: pick(x.verdict, ["GO", "PIVOT", "NO-GO"], vlabel(score)),
+    title: String(x.title || x.slug || "Untitled idea"), slug: String(x.slug || ""),
+    confidence: pick(x.confidence, ["high", "medium", "low"], null), evaluated,
+    ttfr: num(x.time_to_first_revenue_weeks), ltv: num(x.ltv_cac),
+    kill: typeof x.primary_kill_shot === "string" && x.primary_kill_shot ? x.primary_kill_shot : null,
+    rescue: r ? { change: String(r.change || ""), after: num(r.score_after) === null ? null : clamp(Math.round(num(r.score_after)), 0, 100), diff: pick(r.difficulty, ["doable", "hard", "very-hard"], "hard") } : null,
+    countries: Array.isArray(x.countries) ? x.countries.filter(c => typeof c === "string" && c).slice(0, 8) : [],
+    href: safeRel(x.report), stale: x.stale === true,
+    hist: Array.isArray(x.history) ? x.history.slice(-10).map(h => num(h && h.score)).filter(v => v !== null).map(v => clamp(Math.round(v), 0, 100)) : [],
+    hits: Array.isArray(x.hits) ? x.hits.filter(k => Object.prototype.hasOwnProperty.call(KS, k)) : [] };
+});
+const pats = Array.isArray(D.patterns) ? D.patterns.filter(p => p && Object.prototype.hasOwnProperty.call(KS, p.kill_shot)).slice(0, 8)
+  .map(p => ({ k: p.kill_shot, hits: clamp(Math.round(num(p.hits) ?? 0), 0, 300), checked: clamp(Math.round(num(p.checked) ?? 0), 0, 300) })) : null;
+const F = D.focus && typeof D.focus === "object" ? D.focus : null;
+const fIdea = F ? ideas.find(x => x.slug === String(F.slug || "")) : null;
+
+const COUNT = { "GO": 0, "PIVOT": 0, "NO-GO": 0 };
+ideas.forEach(x => COUNT[x.verdict]++);
+const S = { sort: "score", show: new Set(["GO", "PIVOT", "NO-GO"]), hideStale: false, ks: null };
+const SORTS = { score: "Score", confidence: "Confidence", ttfr: "Time to revenue", newest: "Newest" };
+const byScore = (a, b) => b.score - a.score || (a.ttfr ?? 1e9) - (b.ttfr ?? 1e9) || (CONF[b.confidence] || 0) - (CONF[a.confidence] || 0);
+const CMP = { score: byScore,
+  confidence: (a, b) => (CONF[b.confidence] || 0) - (CONF[a.confidence] || 0) || byScore(a, b),
+  ttfr: (a, b) => (a.ttfr ?? 1e9) - (b.ttfr ?? 1e9) || byScore(a, b),
+  newest: (a, b) => String(b.evaluated || "").localeCompare(String(a.evaluated || "")) || byScore(a, b) };
+
+const ring = (score, v) => { const r = 30, c = 2 * Math.PI * r, off = c * (1 - score / 100);
+  return `<svg class="ring" viewBox="0 0 72 72" role="img" aria-label="Score ${score} out of 100">
+    <circle cx="36" cy="36" r="${r}" fill="none" stroke="var(--muted)" stroke-width="7"/>
+    <circle cx="36" cy="36" r="${r}" fill="none" stroke="${VC[v]}" stroke-width="7" stroke-linecap="round" transform="rotate(-90 36 36)" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/>
+    <text class="rn" x="36" y="37" text-anchor="middle" dominant-baseline="middle">${score}</text></svg>`; };
+const conf = c => c ? `<span class="conf" title="${c} confidence"><i>${[1, 2, 3].map(n => `<b class="${n <= CONF[c] ? "on" : ""}"></b>`).join("")}</i>${c[0].toUpperCase() + c.slice(1)} confidence</span>` : `<span class="conf">Confidence unknown</span>`;
+const fmtN = v => v === null ? '<span class="unk">unknown</span>' : (Number.isInteger(v) ? String(v) : String(+v.toFixed(1)));
+const track = (from, to) => { const lo = Math.min(from, to), hi = Math.max(from, to);
+  return `<div class="track" aria-hidden="true"><span style="left:0;width:${lo}%;background:${VC[vlabel(from)]};opacity:.55"></span><span style="left:${lo}%;width:${hi - lo}%;background:${VC[vlabel(to)]}"></span><i style="left:50%"></i><i style="left:70%"></i></div>`; };
+
+const spark = h => { if (h.length < 2) return "";
+  const W = 96, H = 26, step = (W - 6) / (h.length - 1), lo = Math.min(...h) - 2, span = Math.max(4, Math.max(...h) + 2 - lo);
+  const pts = h.map((v, i) => `${(3 + i * step).toFixed(1)},${(H - 3 - (v - lo) / span * (H - 6)).toFixed(1)}`).join(" ");
+  const last = h[h.length - 1], first = h[0];
+  return `<div class="spark" title="Score history"><svg viewBox="0 0 ${W} ${H}" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${VC[vlabel(last)]}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg><span>${h.join(" → ")}</span><span class="badge ${last >= first ? "b-GO" : "b-NO-GO"}">${last >= first ? "+" : ""}${last - first}</span></div>`; };
+const cardHtml = (x, rank, d) => {
+  const ks = x.kill ? esc(KS[x.kill] || x.kill.replace(/_/g, " ")) : null;
+  const rx = x.rescue;
+  return `<article class="card idea${x.stale ? " stale" : ""}" style="--vc:${VC[x.verdict]};--d:${d}ms" aria-label="${esc(x.title)}">
+  <span class="rank">#${rank}</span>
+  <div class="ihead">${ring(x.score, x.verdict)}<div style="min-width:0">
+    <h3 class="ttl">${esc(x.title)}</h3>
+    <div class="tags"><span class="badge b-${x.verdict}">${ic(VICON[x.verdict], 13)}${x.verdict}</span>${conf(x.confidence)}${x.stale ? `<span class="badge b-stale">${ic("clock", 12)}Stale</span>` : ""}</div>
+  </div></div>
+  ${spark(x.hist)}
+  <dl class="facts" style="margin:0">
+    <div><dt>First revenue</dt><dd>${x.ttfr === null ? fmtN(null) : `${fmtN(x.ttfr)}<span class="u">wk</span>`}</dd></div>
+    <div><dt>LTV : CAC</dt><dd>${x.ltv === null ? fmtN(null) : `${fmtN(x.ltv)}<span class="u">×</span>`}</dd></div>
+    <div><dt>Evaluated</dt><dd style="font-size:14px">${x.evaluated ? esc(x.evaluated) : fmtN(null)}</dd></div>
+  </dl>
+  <div class="blk ks"><div class="k">${ic("alert", 13)}Primary kill shot</div><p>${ks || '<span class="unk">none recorded</span>'}</p></div>
+  ${rx ? `<div class="blk rx"><div class="k">${ic("life", 13)}Best rescue</div><p>${esc(rx.change) || '<span class="unk">no description</span>'}</p>
+    ${rx.after !== null ? `<div class="delta"><span class="num">${x.score}</span>${ic("arrow", 14)}<span class="to">${rx.after}</span><span class="badge b-${vlabel(rx.after)}">${vlabel(rx.after)}</span><span class="badge b-${rx.diff}">${DIFF[rx.diff]}</span></div>${track(x.score, rx.after)}` : `<div class="delta"><span class="badge b-${rx.diff}">${DIFF[rx.diff]}</span></div>`}</div>`
+    : `<div class="blk rx"><div class="k">${ic("life", 13)}Best rescue</div><p><span class="unk">No rescue path</span></p></div>`}
+  ${x.countries.length ? `<div class="ctry" aria-label="Countries">${x.countries.map(c => `<span>${esc(c.slice(0, 40))}</span>`).join("")}</div>` : ""}
+  <div class="foot"><span class="slug" title="${esc(x.slug)}">${esc(x.slug)}</span>${x.href ? `<a class="open" href="${esc(x.href)}">Open report ${ic("arrow", 14)}</a>` : '<span class="nolink">No report link</span>'}</div>
+</article>`; };
+
+const logo = `<svg viewBox="0 0 1024 1024" aria-hidden="true"><rect width="1024" height="1024" rx="224" fill="#1E40AF"/><path d="M512 150c-150 0-262 112-262 258 0 92 44 160 100 214 30 29 46 62 46 98v38h232v-38c0-36 16-69 46-98 56-54 100-122 100-214 0-146-112-258-262-258z" fill="#fff"/><g stroke="#1E40AF" stroke-width="44" stroke-linecap="round"><path d="M380 340l80 80M460 340l-80 80M564 340l80 80M644 340l-80 80"/></g><rect x="396" y="776" width="232" height="60" rx="26" fill="#BFDBFE"/></svg>`;
+const dashHtml = () => {
+  if (!F && !pats) return "";
+  let focus;
+  if (fIdea) {
+    const rows = [["Why", F.why], ["First action", F.first_action], ["Deadline", F.deadline]].filter(r => typeof r[1] === "string" && r[1]);
+    focus = `<section class="card panel focus" style="--vc:${VC[fIdea.verdict]}" aria-label="Focus this week"><h2>${ic("target", 14)}Focus this week</h2>
+      <div class="fhead">${ring(fIdea.score, fIdea.verdict)}<div style="min-width:0"><h3 class="fttl">${esc(fIdea.title)}</h3><div class="tags"><span class="badge b-${fIdea.verdict}">${ic(VICON[fIdea.verdict], 13)}${fIdea.verdict}</span>${conf(fIdea.confidence)}</div></div></div>
+      ${rows.length ? `<dl class="fl">${rows.map(r => `<dt>${r[0]}</dt><dd${r[0] === "Deadline" ? ' class="dl"' : ""}>${esc(r[1].slice(0, 300))}</dd>`).join("")}</dl>` : ""}
+      ${fIdea.href ? `<div><a class="open" href="${esc(fIdea.href)}">Open report ${ic("arrow", 14)}</a></div>` : ""}</section>`;
+  } else if (D.brain !== true) {
+    focus = ""; /* a shared board (e.g. a public gallery) has no owner, so no focus */
+  } else {
+    focus = `<section class="card panel focus" aria-label="Focus this week"><h2>${ic("target", 14)}Focus this week</h2><p class="hint">No focus picked yet. Run /kill-my-idea:compare to choose the one idea to work on.</p></section>`;
+  }
+  let pat = "";
+  if (pats && pats.length) {
+    const max = Math.max(1, ...pats.map(p => p.checked));
+    const top = pats[0];
+    pat = `<section class="card panel" aria-label="What keeps killing your ideas"><h2>${ic("alert", 14)}What keeps killing your ideas</h2>
+      <ul class="pats">${pats.map(p => `<li><button class="pat${p.hits ? "" : " zero"}" type="button" data-ks="${p.k}" aria-pressed="false" title="Show the ideas this hit"><span class="pl">${esc(KS[p.k])}</span><span class="pn">${p.hits}/${p.checked}</span><span class="pb"><span style="width:${(p.hits / max * 100).toFixed(1)}%"></span></span></button></li>`).join("")}</ul>
+      <p class="hint">${top.hits >= 2 ? `Check ${esc(KS[top.k].toLowerCase())} first on your next idea. ` : ""}Click a row to see the ideas it hit.</p></section>`;
+  }
+  return `<div class="dash${focus && pat ? "" : " one"}">${focus}${pat}</div>`;
+};
+const total = ideas.length, gen = typeof D.generated === "string" ? D.generated.slice(0, 40) : "";
+const stat = (cls, label, n) => `<div class="card stat ${cls}"><div class="k"><span class="dot d-${cls === "all" ? "all" : cls}"></span>${label}</div><div class="v">${n}</div></div>`;
+const dist = total ? ["GO", "PIVOT", "NO-GO"].filter(v => COUNT[v]).map(v => `<span style="width:${(COUNT[v] / total * 100).toFixed(2)}%;background:${VC[v]}" title="${v}: ${COUNT[v]}"></span>`).join("") : "";
+app.innerHTML = /* safe-render */ `<header class="top"><div class="topbar"><a class="brand" href="https://github.com/RemiPelloux/kill-my-idea" target="_blank" rel="noopener noreferrer">${logo}kill-my-idea</a><span class="t">Idea dashboard</span>${gen ? `<span class="gen">${esc(gen)}</span>` : ""}${D.brain === true ? `<a class="blink" href="BRAIN.md">${ic("note", 14)}Brain note</a>` : ""}</div></header>
+<main>
+  <div class="head"><div><h1>Idea dashboard</h1><p class="sub">${total} idea${total === 1 ? "" : "s"} ranked from their verdicts. Focus on one; park or kill the rest.</p></div>
+    <div class="stats">${stat("all", "Ideas", total)}${stat("GO", "GO", COUNT.GO)}${stat("PIVOT", "PIVOT", COUNT.PIVOT)}${stat("NO-GO", "NO-GO", COUNT["NO-GO"])}<div class="dist" aria-hidden="true">${dist}</div></div></div>
+  ${dashHtml()}
+  <div class="card bar" role="toolbar" aria-label="Filter and sort">
+    <div class="grp"><span class="lbl">Show</span>${["GO", "PIVOT", "NO-GO"].map(v => `<button class="chip" type="button" data-v="${v}" aria-pressed="true"><span class="dot d-${v}"></span>${v}<span class="n">${COUNT[v]}</span></button>`).join("")}<button class="chip" type="button" data-stale="1" aria-pressed="false">${ic("clock", 14)}Hide stale</button></div>
+    <div class="grp"><span class="lbl">Sort</span><div class="seg">${Object.keys(SORTS).map(k => `<button type="button" data-sort="${k}" aria-pressed="${k === S.sort}">${SORTS[k]}</button>`).join("")}</div></div>
+  </div>
+  <p class="count" id="count" aria-live="polite"></p>
+  <div class="grid" id="grid"></div>
+</main>
+<footer>Generated by kill-my-idea compare. Scores are estimates from public research, not financial advice.</footer>`;
+
+const grid = document.getElementById("grid"), count = document.getElementById("count");
+const render = () => {
+  const list = ideas.filter(x => S.show.has(x.verdict) && !(S.hideStale && x.stale) && (!S.ks || x.hits.includes(S.ks))).sort(CMP[S.sort]);
+  count.textContent = `Showing ${list.length} of ${total}` + (S.ks ? ` · hit by ${KS[S.ks].toLowerCase()}` : "");
+  grid.innerHTML = list.length ? list.map((x, n) => cardHtml(x, n + 1, Math.min(n, 12) * 50)).join("") /* safe-render */
+    : `<div class="card empty" style="grid-column:1/-1"><h2>No ideas match these filters</h2><p>Turn a verdict back on or show stale ideas.</p><button class="reset" type="button" data-reset="1">Reset filters</button></div>`;
+};
+app.addEventListener("click", ev => {
+  const b = ev.target.closest("button"); if (!b) return;
+  if (b.dataset.v) { const v = b.dataset.v; S.show.has(v) ? S.show.delete(v) : S.show.add(v); b.setAttribute("aria-pressed", String(S.show.has(v))); }
+  else if (b.dataset.stale) { S.hideStale = !S.hideStale; b.setAttribute("aria-pressed", String(S.hideStale)); }
+  else if (b.dataset.sort && SORTS[b.dataset.sort]) { S.sort = b.dataset.sort; app.querySelectorAll("[data-sort]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); }
+  else if (b.dataset.ks && KS[b.dataset.ks]) { S.ks = S.ks === b.dataset.ks ? null : b.dataset.ks; app.querySelectorAll("[data-ks]").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.ks === S.ks))); }
+  else if (b.dataset.reset) { S.ks = null; app.querySelectorAll("[data-ks]").forEach(x => x.setAttribute("aria-pressed", "false")); S.show = new Set(["GO", "PIVOT", "NO-GO"]); S.hideStale = false; app.querySelectorAll("[data-v]").forEach(x => x.setAttribute("aria-pressed", "true")); app.querySelector("[data-stale]").setAttribute("aria-pressed", "false"); }
+  else return;
+  render();
+});
+document.title = `Idea dashboard · ${total} idea${total === 1 ? "" : "s"} · kill-my-idea`;
+if (!total) { grid.innerHTML = '<div class="card empty" style="grid-column:1/-1"><h2>No ideas yet</h2><p>Evaluate an idea with /kill-my-idea:kill, then run /kill-my-idea:compare.</p></div>'; /* safe-render */ count.textContent = ""; }
+else render();
+} catch (e) { fail("This board could not be displayed", "The board data has an unexpected shape (" + (e && e.message || e) + "). Run /kill-my-idea:compare again."); }
+})();
+</script>
+</body>
+</html>

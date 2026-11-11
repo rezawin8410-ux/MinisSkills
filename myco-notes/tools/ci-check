@@ -1,0 +1,3 @@
+#!/bin/sh
+# ci-check: launcher for ci_check.py (the implementation, shared by Linux, macOS and Windows).
+exec "$(cd "$(dirname "$0")" && pwd -P)/_run" ci_check.py "$@"

@@ -1,0 +1,824 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/RemiPelloux/kill-my-idea/skills/kill/verdict.schema.json",
+  "title": "kill-my-idea verdict",
+  "description": "Machine-readable verdict and metrics. Read by /kill-my-idea:compare and /kill-my-idea:deepdive, and checked by scripts/check-idea.py. Each metric carries its own source or is marked estimate. The score is recomputed from the 21 sub-scores: total = round half up of sum(weight x mean of the 3 sub-scores) / 5, then the fixed rules (R1-R5 in SKILL.md section 5) apply.",
+  "type": "object",
+  "required": [
+    "slug",
+    "evaluated",
+    "mode",
+    "verdict",
+    "score",
+    "criteria",
+    "criteria_detail",
+    "metrics",
+    "kill_shots",
+    "rules_applied",
+    "confidence",
+    "sources"
+  ],
+  "$defs": {
+    "url": {
+      "type": "string",
+      "pattern": "^https?://",
+      "maxLength": 2000
+    },
+    "metric": {
+      "type": "object",
+      "required": [
+        "value",
+        "basis"
+      ],
+      "properties": {
+        "value": {
+          "type": [
+            "number",
+            "string",
+            "null"
+          ],
+          "description": "null or \"unknown\" when not found"
+        },
+        "unit": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "e.g. EUR, USD/month, %, weeks, months, customers/month"
+        },
+        "basis": {
+          "enum": [
+            "sourced",
+            "estimate",
+            "unknown"
+          ]
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/url"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Required when basis is sourced. The URL the value was read from."
+        },
+        "reasoning": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 400,
+          "description": "Required when basis is estimate: the formula and its inputs, e.g. 'price 19 x margin 0.8 x 1.2 purchases'"
+        },
+        "as_of": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Date the value is valid for (YYYY-MM or YYYY-MM-DD), e.g. the date a price was read"
+        }
+      },
+      "if": {
+        "properties": {
+          "basis": {
+            "const": "sourced"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "source"
+        ],
+        "properties": {
+          "source": {
+            "$ref": "#/$defs/url"
+          }
+        }
+      },
+      "else": {
+        "if": {
+          "properties": {
+            "basis": {
+              "const": "estimate"
+            }
+          }
+        },
+        "then": {
+          "required": [
+            "reasoning"
+          ],
+          "properties": {
+            "reasoning": {
+              "type": "string",
+              "minLength": 10
+            }
+          }
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "description": "Every metric from the table in SKILL.md section 4. Inputs (price, churn, conversion, costs) are stored so the derived values (LTV, CAC, break-even) can be recomputed.",
+      "properties": {
+        "tam": {
+          "$ref": "#/$defs/metric"
+        },
+        "sam": {
+          "$ref": "#/$defs/metric"
+        },
+        "som": {
+          "$ref": "#/$defs/metric"
+        },
+        "competitors_found": {
+          "$ref": "#/$defs/metric"
+        },
+        "competitor_price_range": {
+          "$ref": "#/$defs/metric"
+        },
+        "demand_trend": {
+          "$ref": "#/$defs/metric"
+        },
+        "price": {
+          "$ref": "#/$defs/metric"
+        },
+        "variable_cost_per_unit": {
+          "$ref": "#/$defs/metric"
+        },
+        "gross_margin_pct": {
+          "$ref": "#/$defs/metric"
+        },
+        "churn_monthly_pct": {
+          "$ref": "#/$defs/metric"
+        },
+        "expected_lifetime": {
+          "$ref": "#/$defs/metric",
+          "description": "Months (subscription) or purchases per customer (one-off). unit says which."
+        },
+        "conversion_rate_pct": {
+          "$ref": "#/$defs/metric",
+          "description": "Visitor to paying customer on the main channel"
+        },
+        "cac": {
+          "$ref": "#/$defs/metric"
+        },
+        "ltv": {
+          "$ref": "#/$defs/metric"
+        },
+        "ltv_cac": {
+          "$ref": "#/$defs/metric"
+        },
+        "payback_months": {
+          "$ref": "#/$defs/metric"
+        },
+        "fixed_costs_month": {
+          "$ref": "#/$defs/metric"
+        },
+        "break_even_customers_per_month": {
+          "$ref": "#/$defs/metric"
+        },
+        "time_to_first_revenue_weeks": {
+          "$ref": "#/$defs/metric"
+        }
+      }
+    },
+    "sub": {
+      "type": "object",
+      "description": "One sub-score: 1-5 in half points, anchored by the rubric in SKILL.md section 5, with a one-line justification and a source when one exists.",
+      "required": [
+        "score",
+        "note"
+      ],
+      "properties": {
+        "score": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5,
+          "multipleOf": 0.5
+        },
+        "note": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 160
+        },
+        "source": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/url"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "criterion_score": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 5,
+      "multipleOf": 0.5
+    },
+    "kill_shot_status": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "true = hit, false = checked and clear, null = not checked"
+    }
+  },
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^1\\.\\d+$",
+      "description": "The file format that wrote this file. \"1.0\" since kill-my-idea 1.0; files without it are pre-1.0 (run scripts/migrate.py)."
+    },
+    "slug": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "evaluated": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "as_of": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "Optional. Score the idea as it looked on this date (e.g. a famous company's launch day, for calibration). Only evidence published on or before it may be used; the checker flags later sources."
+    },
+    "mode": {
+      "enum": [
+        "kill",
+        "deepdive",
+        "roast",
+        "check-tweet"
+      ]
+    },
+    "verdict": {
+      "enum": [
+        "GO",
+        "PIVOT",
+        "NO-GO"
+      ],
+      "description": "GO at 70 and above, PIVOT from 50 to 69, NO-GO below 50"
+    },
+    "score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Final score after the fixed rules. Must equal round half up of score_raw, then capped by rules_applied."
+    },
+    "score_raw": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "sum(weight x mean of the 3 sub-scores) / 5 before rounding and caps, one decimal, e.g. 60.5"
+    },
+    "confidence": {
+      "type": "object",
+      "required": [
+        "level",
+        "sourced_subscores",
+        "sources",
+        "primary_sources"
+      ],
+      "properties": {
+        "level": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "description": "high: 14+ sourced sub-scores, 25+ sources, 5+ primary. medium: 8+, 15+, 2+. Otherwise low."
+        },
+        "sourced_subscores": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 21
+        },
+        "sources": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "primary_sources": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "What would raise it, e.g. 'no local pricing data for BE'"
+        }
+      }
+    },
+    "criteria": {
+      "type": "object",
+      "required": [
+        "profit",
+        "feasibility",
+        "time_to_first_revenue",
+        "demand",
+        "competition",
+        "risk",
+        "fit"
+      ],
+      "properties": {
+        "profit": {
+          "$ref": "#/$defs/criterion_score"
+        },
+        "feasibility": {
+          "$ref": "#/$defs/criterion_score"
+        },
+        "time_to_first_revenue": {
+          "$ref": "#/$defs/criterion_score"
+        },
+        "demand": {
+          "$ref": "#/$defs/criterion_score"
+        },
+        "competition": {
+          "$ref": "#/$defs/criterion_score"
+        },
+        "risk": {
+          "$ref": "#/$defs/criterion_score"
+        },
+        "fit": {
+          "$ref": "#/$defs/criterion_score"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Display values: each criterion = mean of its 3 sub-scores rounded to 0.5. The total is computed from the unrounded means."
+    },
+    "criteria_detail": {
+      "type": "object",
+      "description": "21 sub-scores, 3 per criterion. Weights: profit 25, feasibility 20, time_to_first_revenue 15, demand 15, competition 10, risk 10, fit 5.",
+      "required": [
+        "profit",
+        "feasibility",
+        "time_to_first_revenue",
+        "demand",
+        "competition",
+        "risk",
+        "fit"
+      ],
+      "properties": {
+        "profit": {
+          "type": "object",
+          "required": [
+            "gross_margin",
+            "ltv_cac",
+            "pricing_power"
+          ],
+          "properties": {
+            "gross_margin": {
+              "$ref": "#/$defs/sub"
+            },
+            "ltv_cac": {
+              "$ref": "#/$defs/sub"
+            },
+            "pricing_power": {
+              "$ref": "#/$defs/sub"
+            }
+          },
+          "additionalProperties": false
+        },
+        "feasibility": {
+          "type": "object",
+          "required": [
+            "build_effort",
+            "skills_match",
+            "capital_needed"
+          ],
+          "properties": {
+            "build_effort": {
+              "$ref": "#/$defs/sub"
+            },
+            "skills_match": {
+              "$ref": "#/$defs/sub"
+            },
+            "capital_needed": {
+              "$ref": "#/$defs/sub"
+            }
+          },
+          "additionalProperties": false
+        },
+        "time_to_first_revenue": {
+          "type": "object",
+          "required": [
+            "time_to_mvp",
+            "sales_cycle",
+            "channel_readiness"
+          ],
+          "properties": {
+            "time_to_mvp": {
+              "$ref": "#/$defs/sub"
+            },
+            "sales_cycle": {
+              "$ref": "#/$defs/sub"
+            },
+            "channel_readiness": {
+              "$ref": "#/$defs/sub"
+            }
+          },
+          "additionalProperties": false
+        },
+        "demand": {
+          "type": "object",
+          "required": [
+            "search_demand",
+            "trend",
+            "willingness_to_pay"
+          ],
+          "properties": {
+            "search_demand": {
+              "$ref": "#/$defs/sub"
+            },
+            "trend": {
+              "$ref": "#/$defs/sub"
+            },
+            "willingness_to_pay": {
+              "$ref": "#/$defs/sub"
+            }
+          },
+          "additionalProperties": false
+        },
+        "competition": {
+          "type": "object",
+          "required": [
+            "free_alternatives",
+            "competitor_density",
+            "differentiation"
+          ],
+          "properties": {
+            "free_alternatives": {
+              "$ref": "#/$defs/sub"
+            },
+            "competitor_density": {
+              "$ref": "#/$defs/sub"
+            },
+            "differentiation": {
+              "$ref": "#/$defs/sub"
+            }
+          },
+          "additionalProperties": false
+        },
+        "risk": {
+          "type": "object",
+          "required": [
+            "legal_regulatory",
+            "platform_dependency",
+            "market_risk"
+          ],
+          "properties": {
+            "legal_regulatory": {
+              "$ref": "#/$defs/sub"
+            },
+            "platform_dependency": {
+              "$ref": "#/$defs/sub"
+            },
+            "market_risk": {
+              "$ref": "#/$defs/sub"
+            }
+          },
+          "additionalProperties": false
+        },
+        "fit": {
+          "type": "object",
+          "required": [
+            "skills",
+            "assets",
+            "interest"
+          ],
+          "properties": {
+            "skills": {
+              "$ref": "#/$defs/sub"
+            },
+            "assets": {
+              "$ref": "#/$defs/sub"
+            },
+            "interest": {
+              "$ref": "#/$defs/sub"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "rules_applied": {
+      "type": "array",
+      "description": "Every fixed rule that changed a score, in the order applied. Empty array when none did.",
+      "items": {
+        "type": "object",
+        "required": [
+          "rule",
+          "effect"
+        ],
+        "properties": {
+          "rule": {
+            "enum": [
+              "R1_free_equivalent",
+              "R2_no_channel",
+              "R3_saturated_wave",
+              "R4_ltv_cac_below_1",
+              "R5_kill_shot_coherence",
+              "R6_unprofitable_no_channel",
+              "R7_unprofitable_model"
+            ]
+          },
+          "effect": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "What changed, e.g. 'total 74 capped at 69' or 'competition 2.5 -> 1.5'"
+          }
+        }
+      }
+    },
+    "metrics": {
+      "$ref": "#/$defs/metrics"
+    },
+    "by_country": {
+      "type": "object",
+      "description": "Optional: the same metrics per country, keyed by ISO 3166-1 alpha-2 code. Present when the idea targets 2 or more countries.",
+      "patternProperties": {
+        "^[A-Z]{2}$": {
+          "$ref": "#/$defs/metrics"
+        }
+      },
+      "additionalProperties": false
+    },
+    "launch_country": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[A-Z]{2}$"
+    },
+    "launch_reason": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 240,
+      "description": "Why this country first, in one sentence"
+    },
+    "kill_shots": {
+      "type": "object",
+      "description": "true = hit, false = checked and clear, null = not checked. Evidence lives in report-data.js narrative.kill_shots.",
+      "required": [
+        "free_alternative",
+        "strong_competitor",
+        "graveyard",
+        "no_distribution",
+        "costs_eat_margin",
+        "weak_demand",
+        "legal_platform_risk",
+        "saturated_wave"
+      ],
+      "properties": {
+        "free_alternative": {
+          "$ref": "#/$defs/kill_shot_status"
+        },
+        "strong_competitor": {
+          "$ref": "#/$defs/kill_shot_status"
+        },
+        "graveyard": {
+          "$ref": "#/$defs/kill_shot_status"
+        },
+        "no_distribution": {
+          "$ref": "#/$defs/kill_shot_status"
+        },
+        "costs_eat_margin": {
+          "$ref": "#/$defs/kill_shot_status"
+        },
+        "weak_demand": {
+          "$ref": "#/$defs/kill_shot_status"
+        },
+        "legal_platform_risk": {
+          "$ref": "#/$defs/kill_shot_status"
+        },
+        "saturated_wave": {
+          "$ref": "#/$defs/kill_shot_status"
+        }
+      },
+      "additionalProperties": false
+    },
+    "primary_kill_shot": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "free_alternative",
+        "strong_competitor",
+        "graveyard",
+        "no_distribution",
+        "costs_eat_margin",
+        "weak_demand",
+        "legal_platform_risk",
+        "saturated_wave",
+        null
+      ],
+      "description": "The one kill shot that weighs most on the verdict. null for a GO with none hit."
+    },
+    "cheapest_test": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 300
+    },
+    "kill_criteria": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "string",
+        "pattern": "\\d",
+        "maxLength": 200,
+        "description": "Each one contains a number and a deadline, e.g. 'fewer than 10 sign-ups by day 7 -> stop'"
+      }
+    },
+    "sources": {
+      "type": "array",
+      "description": "Every URL cited anywhere in the verdict. Minimum 20 for kill, 40 for deepdive, 10 for roast.",
+      "items": {
+        "$ref": "#/$defs/url"
+      },
+      "uniqueItems": true
+    },
+    "rescue": {
+      "type": "array",
+      "maxItems": 3,
+      "description": "Ways to make the idea better, sorted by score_after descending, then by difficulty (doable first). Same weights and fixed rules as the main score.",
+      "items": {
+        "type": "object",
+        "required": [
+          "change",
+          "why",
+          "score_after",
+          "difficulty"
+        ],
+        "properties": {
+          "change": {
+            "type": "string",
+            "maxLength": 240
+          },
+          "why": {
+            "type": "string",
+            "maxLength": 240,
+            "description": "Which kill shot or sub-score it fixes"
+          },
+          "score_after": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Estimate. Still capped at 69 if the path has no credible channel."
+          },
+          "difficulty": {
+            "enum": [
+              "doable",
+              "hard",
+              "very-hard"
+            ]
+          },
+          "effort": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "cost": {
+            "type": "string",
+            "maxLength": 80
+          },
+          "requires": {
+            "type": "string",
+            "maxLength": 200
+          }
+        }
+      }
+    },
+    "history": {
+      "type": "array",
+      "description": "Previous evaluations of this idea, oldest first. deepdive appends the quick verdict it replaced.",
+      "items": {
+        "type": "object",
+        "required": [
+          "mode",
+          "evaluated",
+          "score",
+          "verdict"
+        ],
+        "properties": {
+          "mode": {
+            "enum": [
+              "kill",
+              "deepdive",
+              "roast",
+              "check-tweet"
+            ]
+          },
+          "evaluated": {
+            "type": "string"
+          },
+          "score": {
+            "type": "integer"
+          },
+          "verdict": {
+            "enum": [
+              "GO",
+              "PIVOT",
+              "NO-GO"
+            ]
+          },
+          "sources": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "type_checks": {
+      "type": "array",
+      "maxItems": 2,
+      "description": "The 2 checks of idea.type (SKILL.md §1 table), run like kill shots.",
+      "items": {
+        "type": "object",
+        "required": [
+          "check",
+          "result",
+          "note"
+        ],
+        "properties": {
+          "check": {
+            "enum": [
+              "churn_benchmark",
+              "client_concentration",
+              "contribution_margin",
+              "disintermediation",
+              "founder_time_ceiling",
+              "liquidity",
+              "location_traffic",
+              "permits_capex",
+              "platform_fees",
+              "platform_policy",
+              "returns_shipping",
+              "rpm",
+              "store_search_demand",
+              "switching_cost"
+            ]
+          },
+          "result": {
+            "enum": [
+              "hit",
+              "clear",
+              "unknown"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 240
+          },
+          "source": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^https?://"
+          }
+        }
+      }
+    },
+    "quick": {
+      "type": "boolean",
+      "description": "Quick mode (--quick): 10 sources from 6 domains, confidence low, never a GO (capped at 69)."
+    },
+    "run": {
+      "type": "object",
+      "description": "What the run cost, shown in the report footer.",
+      "properties": {
+        "started": {
+          "type": "string"
+        },
+        "minutes": {
+          "type": "number",
+          "minimum": 0
+        },
+        "searches": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fetches": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "subagents": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

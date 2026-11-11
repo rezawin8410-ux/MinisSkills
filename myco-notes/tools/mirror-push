@@ -1,0 +1,3 @@
+#!/bin/sh
+# mirror-push: launcher for mirror_push.py (the implementation, shared by Linux, macOS and Windows).
+exec "$(cd "$(dirname "$0")" && pwd -P)/_run" mirror_push.py "$@"

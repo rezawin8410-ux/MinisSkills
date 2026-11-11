@@ -1,0 +1,277 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/RemiPelloux/kill-my-idea/skills/compare/board-data.schema.json",
+  "title": "kill-my-idea board data",
+  "description": "Content of ideas/board-data.js (window.KMI_BOARD = {...};), written by scripts/build-brain.py (or by the compare skill by hand) and rendered by ideas/board.html. One strict JSON literal: no functions, comments or template literals. Ideas are in ranking order. Check it with: python3 scripts/check-idea.py --board ideas",
+  "type": "object",
+  "required": [
+    "generated",
+    "ideas"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^1\\.\\d+$",
+      "description": "The file format that wrote this file. \"1.0\" since kill-my-idea 1.0; files without it are pre-1.0 (run scripts/migrate.py)."
+    },
+    "generated": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "The day compare wrote the file"
+    },
+    "ideas": {
+      "type": "array",
+      "description": "One entry per ideas/*/verdict.json, in ranking order (best first)",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "slug",
+          "title",
+          "verdict",
+          "score",
+          "confidence",
+          "evaluated",
+          "time_to_first_revenue_weeks",
+          "ltv_cac",
+          "primary_kill_shot",
+          "best_rescue",
+          "countries",
+          "report",
+          "stale"
+        ],
+        "properties": {
+          "slug": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "description": "idea.json title"
+          },
+          "verdict": {
+            "enum": [
+              "GO",
+              "PIVOT",
+              "NO-GO"
+            ]
+          },
+          "score": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "confidence": {
+            "enum": [
+              "high",
+              "medium",
+              "low",
+              null
+            ],
+            "description": "verdict.confidence.level; null for a legacy verdict without one"
+          },
+          "evaluated": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+          },
+          "time_to_first_revenue_weeks": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "verdict.metrics.time_to_first_revenue_weeks.value; null when unknown"
+          },
+          "ltv_cac": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "verdict.metrics.ltv_cac.value; null when unknown"
+          },
+          "primary_kill_shot": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "free_alternative",
+              "strong_competitor",
+              "graveyard",
+              "no_distribution",
+              "costs_eat_margin",
+              "weak_demand",
+              "legal_platform_risk",
+              "saturated_wave",
+              null
+            ]
+          },
+          "best_rescue": {
+            "description": "verdict.rescue[0], reduced to these 3 fields; null when there is none",
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "change",
+                  "score_after",
+                  "difficulty"
+                ],
+                "properties": {
+                  "change": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "score_after": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100
+                  },
+                  "difficulty": {
+                    "enum": [
+                      "doable",
+                      "hard",
+                      "very-hard"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "countries": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z]{2}$"
+            },
+            "description": "idea.json countries, launch country first"
+          },
+          "report": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-][A-Za-z0-9._-]*/report\\.html$",
+            "description": "Path to the idea's report, relative to ideas/: '<folder>/report.html'"
+          },
+          "stale": {
+            "type": "boolean",
+            "description": "true when evaluated is more than 90 days before generated"
+          },
+          "history": {
+            "type": "array",
+            "maxItems": 10,
+            "description": "Score history, oldest first, ending with the current evaluation",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "evaluated",
+                "score"
+              ],
+              "properties": {
+                "evaluated": {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+                },
+                "score": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100
+                }
+              }
+            }
+          },
+          "hits": {
+            "type": "array",
+            "description": "Kill shots that hit this idea (verdict.kill_shots true)",
+            "items": {
+              "enum": [
+                "free_alternative",
+                "strong_competitor",
+                "graveyard",
+                "no_distribution",
+                "costs_eat_margin",
+                "weak_demand",
+                "legal_platform_risk",
+                "saturated_wave"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "brain": {
+      "type": "boolean",
+      "description": "true when ideas/BRAIN.md exists; the dashboard links to it"
+    },
+    "focus": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "slug"
+      ],
+      "description": "ideas/focus.json, the one idea to work on this week, picked by compare",
+      "properties": {
+        "slug": {
+          "type": "string"
+        },
+        "why": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "first_action": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "deadline": {
+          "type": "string",
+          "maxLength": 300
+        },
+        "decided": {
+          "type": "string",
+          "maxLength": 300
+        }
+      }
+    },
+    "patterns": {
+      "type": "array",
+      "description": "How often each kill shot hit, over all ideas, most hits first",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kill_shot",
+          "hits",
+          "checked"
+        ],
+        "properties": {
+          "kill_shot": {
+            "enum": [
+              "free_alternative",
+              "strong_competitor",
+              "graveyard",
+              "no_distribution",
+              "costs_eat_margin",
+              "weak_demand",
+              "legal_platform_risk",
+              "saturated_wave"
+            ]
+          },
+          "hits": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "checked": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    }
+  }
+}

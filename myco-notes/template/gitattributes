@@ -1,0 +1,5 @@
+# Keep shell launchers and hooks with Unix line endings on every platform (a CRLF shebang line breaks them on Windows);
+# Windows batch launchers keep CRLF.
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf

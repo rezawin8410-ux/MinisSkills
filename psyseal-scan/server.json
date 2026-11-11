@@ -1,0 +1,28 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.psyseal/psyseal-scan",
+  "title": "Psyseal scan",
+  "description": "Offline check of your AI agent: heartbeat cost, plaintext keys, planted or bloated memory.",
+  "websiteUrl": "https://psyseal.com",
+  "icons": [
+    { "src": "https://psyseal.com/apple-touch-icon.png", "mimeType": "image/png", "sizes": ["180x180"] }
+  ],
+  "repository": {
+    "url": "https://github.com/psyseal/psyseal-scan",
+    "source": "github"
+  },
+  "version": "0.3.3",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "psyseal-scan",
+      "version": "0.3.3",
+      "runtimeHint": "npx",
+      "transport": { "type": "stdio" },
+      "packageArguments": [
+        { "type": "positional", "value": "mcp", "description": "Runs the scanner as an MCP server over stdio." }
+      ]
+    }
+  ]
+}

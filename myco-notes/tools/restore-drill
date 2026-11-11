@@ -1,0 +1,3 @@
+#!/bin/sh
+# restore-drill: launcher for restore_drill.py (the implementation, shared by Linux, macOS and Windows).
+exec "$(cd "$(dirname "$0")" && pwd -P)/_run" restore_drill.py "$@"

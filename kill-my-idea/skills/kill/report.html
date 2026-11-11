@@ -1,0 +1,838 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' file: 'sha256-BphK1DCULeEvymnamc/jJ+zM1qB9TZBllP0xgGbcP0Y='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>kill-my-idea report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="report-data.js"></script>
+<style>
+/* Design system: ui-ux-pro-max "Data-Dense Dashboard" (financial analytics) — blue data, slate neutrals, Fira Sans / Fira Code */
+:root{
+  --bg:#F8FAFC; --card:#FFFFFF; --fg:#0F172A; --muted:#E9EEF6; --muted-fg:#475569; --border:#DBEAFE; --line:#E2E8F0;
+  --primary:#1E40AF; --secondary:#3B82F6; --on-primary:#FFFFFF;
+  --go:#15803D; --go-bg:#DCFCE7; --go-fill:#22C55E; --pivot:#C2410C; --pivot-bg:#FFEDD5; --pivot-fill:#F59E0B; --nogo:#DC2626; --nogo-bg:#FEE2E2; --nogo-fill:#EF4444;
+  --shadow:0 1px 2px rgba(15,23,42,.06),0 8px 24px -12px rgba(15,23,42,.12);
+  --radius:14px; --sans:"Fira Sans",system-ui,-apple-system,"Segoe UI",sans-serif; --mono:"Fira Code",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --s1:8px; --s2:16px; --s3:24px; --s4:32px; --s5:48px; --s6:64px;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0B1220; --card:#111A2E; --fg:#E2E8F0; --muted:#1A2540; --muted-fg:#94A3B8; --border:#1E2B47; --line:#1E293B;
+  --primary:#60A5FA; --secondary:#93C5FD; --on-primary:#0B1220;
+  --go:#4ADE80; --go-bg:#052E1A; --go-fill:#22C55E; --pivot:#FBBF24; --pivot-bg:#2A1A06; --pivot-fill:#F59E0B; --nogo:#F87171; --nogo-bg:#3A0D0D; --nogo-fill:#EF4444;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6);
+}}
+*{box-sizing:border-box}
+html{scroll-padding-top:120px;scrollbar-color:var(--line) var(--bg);caret-color:var(--primary)}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+::selection{background:var(--primary);color:var(--on-primary)}
+a{color:var(--primary);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{text-decoration-thickness:2px}
+:focus-visible{outline:2px solid var(--secondary);outline-offset:2px;border-radius:6px}
+button{font:inherit;cursor:pointer}
+.num,table td{font-variant-numeric:tabular-nums}
+.num{font-family:var(--mono);font-weight:500}
+.ic{width:16px;height:16px;flex:none;vertical-align:-3px}
+
+/* top bar + section tabs */
+.top{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.topbar{max-width:1200px;margin:0 auto;padding:12px var(--s3);display:flex;align-items:center;gap:var(--s2)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:600;color:var(--fg);text-decoration:none;white-space:nowrap}
+.brand svg{width:28px;height:28px}
+.topbar .t{flex:1;min-width:0;color:var(--muted-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:15px}
+.badge{display:inline-flex;align-items:center;gap:6px;font:600 13px var(--sans);padding:5px 10px;border-radius:999px;white-space:nowrap}
+.b-GO{color:var(--go);background:var(--go-bg)} .b-PIVOT{color:var(--pivot);background:var(--pivot-bg)} .b-NO-GO{color:var(--nogo);background:var(--nogo-bg)}
+.b-doable{color:var(--go);background:var(--go-bg)} .b-hard{color:var(--pivot);background:var(--pivot-bg)} .b-very-hard{color:var(--nogo);background:var(--nogo-bg)}
+.b-neutral{color:var(--muted-fg);background:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--fg);font-weight:500;transition:background .2s,border-color .2s}
+.btn:hover{background:var(--muted);border-color:var(--secondary)}
+.tabs{max-width:1200px;margin:0 auto;padding:0 var(--s3);display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs a{flex:none;padding:10px 12px;color:var(--muted-fg);text-decoration:none;font-size:14px;font-weight:500;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
+.tabs a:hover{color:var(--fg)} .tabs a.on{color:var(--primary);border-bottom-color:var(--primary)}
+
+/* layout */
+main{max-width:1200px;margin:0 auto;padding:var(--s4) var(--s3) var(--s6)}
+.grid{display:grid;gap:var(--s3);align-items:start}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))} .g3{grid-template-columns:repeat(3,minmax(0,1fr))} .g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:var(--s3);min-width:0}
+section{margin-top:var(--s5)}
+.sh{margin-bottom:var(--s2)}
+h1{font:700 clamp(30px,4vw,46px)/1.12 var(--sans);letter-spacing:-.02em;margin:0 0 12px;text-wrap:balance}
+h2{font:600 24px/1.25 var(--sans);letter-spacing:-.01em;margin:0}
+h3{font:600 17px/1.35 var(--sans);margin:0 0 12px}
+.sub{color:var(--muted-fg);margin:4px 0 0;max-width:70ch}
+p{max-width:72ch}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:var(--s4);align-items:center;padding:var(--s4)}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:var(--s2)}
+.pitch{color:var(--muted-fg);font-size:18px;margin:0 0 var(--s3)}
+.answer{font-size:19px;line-height:1.55;margin:0}
+.score{display:grid;justify-items:center;gap:12px}
+.ring{width:min(100%,240px);aspect-ratio:1}
+.ring text{font-family:var(--mono)}
+.verdict{display:inline-flex;align-items:center;gap:8px;font:700 20px var(--sans);letter-spacing:.02em;padding:8px 18px;border-radius:12px}
+.verdict .ic{width:20px;height:20px}
+
+/* KPI cards */
+.kpi .k{display:flex;align-items:center;gap:8px;color:var(--muted-fg);font-size:14px;font-weight:500}
+.kpi .v{font:600 30px/1.15 var(--mono);margin:10px 0 6px;letter-spacing:-.02em}
+.kpi .v .u,.num .u{font:400 13px var(--sans);color:var(--muted-fg);margin-left:2px}
+.kpi .m{font-size:14px;color:var(--muted-fg)}
+.kpi .m.bad{color:var(--nogo)} .kpi .m.ok{color:var(--pivot)} .kpi .m.good{color:var(--go)}
+.ev{display:inline-flex;align-items:center;gap:3px;font:500 11px var(--sans);color:var(--muted-fg);border:1px solid var(--line);border-radius:999px;padding:1px 7px;margin-left:6px;vertical-align:3px;cursor:help;white-space:nowrap}
+.ev.s{color:var(--primary);border-color:var(--border)}
+.ev .ic{width:11px;height:11px;vertical-align:0}
+.unk{color:var(--muted-fg);font-style:italic}
+.kw{font-weight:600;color:var(--fg);background:linear-gradient(transparent 58%,color-mix(in srgb,var(--secondary) 24%,transparent) 58%);padding:0 2px;border-radius:2px}
+sup.fn a{font:600 11px var(--mono);text-decoration:none;margin-left:2px}
+
+.tldr{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.tldr li{display:flex;gap:10px;align-items:flex-start}
+.tldr li .ic{color:var(--primary);margin-top:4px}
+.lesson{margin:var(--s2) 0 0;padding:14px 16px;background:var(--muted);border-radius:10px;max-width:none}
+
+/* rescue */
+.rx{display:flex;flex-direction:column;gap:14px;transition:transform .2s,border-color .2s}
+.rx:hover{transform:translateY(-2px);border-color:var(--secondary)}
+.rx .ch{font-weight:600;font-size:17px;line-height:1.4}
+.rx .why{color:var(--muted-fg);font-size:14px}
+.delta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.track{position:relative;height:8px;background:var(--muted);border-radius:99px;overflow:hidden}
+.track span{position:absolute;top:0;bottom:0;left:0;border-radius:99px}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin:0;font-size:14px}
+.facts dt{color:var(--muted-fg)} .facts dd{margin:0}
+
+/* kill shots */
+.ks{list-style:none;margin:0;padding:0}
+.ks li{display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);align-items:start}
+.ks li:last-child{border-bottom:0}
+.dot{width:28px;height:28px;border-radius:8px;display:grid;place-items:center}
+.ks .t{font-weight:600} .ks .e{color:var(--muted-fg);font-size:14px;margin-top:2px}
+
+/* tables */
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{font:600 13px var(--sans);color:var(--muted-fg);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--bg);white-space:nowrap}
+td{padding:12px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr{transition:background .15s} tbody tr:hover{background:var(--bg)}
+td.r,th.r{text-align:right}
+.hl{background:color-mix(in srgb,var(--go-bg) 55%,transparent)}
+
+/* charts */
+.chart{margin:0}
+.chart svg{width:100%;height:auto;display:block;overflow:visible}
+.chart figcaption{font-size:13px;color:var(--muted-fg);margin-top:10px}
+.ax{font:400 12px var(--mono);fill:var(--muted-fg)}
+.lb{font:500 15px var(--sans);fill:var(--fg)}
+.lv{font:500 14px var(--mono);fill:var(--fg)}
+.gridl{stroke:var(--line)}
+.hit{cursor:pointer}
+.hit:hover .mk,.hit:focus .mk{stroke:var(--secondary);stroke-width:3}
+#tip{position:fixed;z-index:50;pointer-events:none;max-width:300px;background:var(--fg);color:var(--bg);font:400 13px/1.45 var(--sans);padding:10px 12px;border-radius:10px;box-shadow:var(--shadow);opacity:0;transition:opacity .15s}
+#tip b{display:block;font-weight:600;margin-bottom:2px}
+#tip{white-space:pre-line}
+
+.quote{margin:0;font-size:16px;line-height:1.55}
+.quote cite{display:block;font-style:normal;font-size:13px;color:var(--muted-fg);margin-top:8px}
+
+
+/* key findings + recommendation */
+.kf{display:grid;grid-template-columns:32px minmax(0,1fr);gap:12px}
+.kf-n{width:32px;height:32px;border-radius:9px;display:grid;place-items:center;background:var(--muted);color:var(--primary);font:600 15px var(--mono)}
+.kf h3{margin:4px 0 6px} .kf p{margin:0;color:var(--muted-fg);font-size:15px}
+.reco{border-color:var(--border);background:linear-gradient(0deg,var(--card),var(--card)) padding-box,linear-gradient(90deg,var(--primary),var(--secondary)) border-box;border:1px solid transparent}
+.reco-k{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--primary);font-size:14px;text-transform:none}
+.reco p{font-size:18px;margin:8px 0 12px;max-width:none}
+/* granular scoring */
+.crit-h,.crit summary,.crit.flat{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,2fr) 70px 110px 18px;gap:16px;align-items:center}
+.crit-h{font:600 13px var(--sans);color:var(--muted-fg);padding:0 0 10px;border-bottom:1px solid var(--line)} .crit-h span:nth-child(3),.crit-h span:nth-child(4){text-align:right}
+.crit{border-bottom:1px solid var(--line)} .crit summary{list-style:none;cursor:pointer;padding:14px 0;border-radius:8px;transition:background .15s} .crit summary::-webkit-details-marker{display:none}
+.crit summary:hover{background:var(--bg)} .crit summary .ic{transition:transform .2s;color:var(--muted-fg)} .crit[open] summary .ic{transform:rotate(90deg)}
+.crit.flat{padding:14px 0}
+.cn{font-weight:600;display:flex;flex-direction:column} .cw{font:400 12px var(--sans);color:var(--muted-fg)}
+.cs,.cp{text-align:right}
+.sbar{display:block;height:10px;background:var(--muted);border-radius:99px;overflow:hidden} .sbar .bar{display:block;height:100%;border-radius:99px}
+.subs{list-style:none;margin:0 0 14px;padding:12px 14px;background:var(--bg);border-radius:10px;display:grid;gap:10px}
+.subs li{display:grid;grid-template-columns:150px minmax(0,1fr) 40px;gap:4px 14px;align-items:center;font-size:14px}
+.subs .sn{font-weight:500} .subs .snote{grid-column:1/-1;color:var(--muted-fg);font-size:13px}
+.crit-t{display:flex;justify-content:space-between;padding:14px 0 4px;font-weight:600;font-size:17px}
+.note{font-size:13px;color:var(--muted-fg);margin:10px 0 0;max-width:none}
+.note.warn{color:var(--nogo);display:flex;gap:6px;align-items:flex-start} .note.warn .ic{width:13px;height:13px;margin-top:3px}
+.rules{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.nb{font:500 13px var(--sans);color:var(--muted-fg)}
+.tier{font:500 11px var(--sans);border:1px solid var(--line);border-radius:999px;padding:0 6px;margin-left:4px;vertical-align:1px;color:var(--muted-fg)}
+.tier.t-primary{color:var(--primary);border-color:var(--border)}
+@media (max-width:768px){.crit-h{display:none}.crit summary,.crit.flat{grid-template-columns:minmax(0,1fr) 60px 18px;row-gap:8px}.crit summary .sbar,.crit.flat .sbar{grid-column:1/-1;grid-row:2}.cp{display:none}.subs li{grid-template-columns:110px minmax(0,1fr) 36px}}
+@media print{.crit summary .ic{display:none}}
+
+/* timeline */
+.tl{list-style:none;margin:0;padding:0}
+.tl li{display:grid;grid-template-columns:92px 20px minmax(0,1fr);gap:12px;padding-bottom:18px}
+.tl .w{font:600 13px var(--mono);color:var(--primary);padding-top:2px;text-align:right}
+.tl .node{position:relative;display:flex;justify-content:center}
+.tl .node::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--card);border:3px solid var(--primary);margin-top:5px;z-index:1}
+.tl li:not(:last-child) .node::after{content:"";position:absolute;top:18px;bottom:-22px;width:2px;background:var(--border)}
+.tl .vf{color:var(--muted-fg);font-size:14px;margin-top:2px}
+.stop{border:1px solid color-mix(in srgb,var(--nogo) 35%,transparent);background:var(--nogo-bg);border-radius:12px;padding:14px 16px}
+.stop h3{color:var(--nogo);display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.stop ul{margin:0;padding-left:20px}
+
+/* pre-mortem, why now, ideal customer */
+.pm{display:flex;flex-direction:column;gap:12px;align-self:stretch}
+.pm-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pm-c{font-weight:600;font-size:17px;line-height:1.4}
+.pm-s{display:flex;gap:8px;align-items:flex-start;font-size:14px;color:var(--muted-fg)} .pm-s .ic{margin-top:3px;color:var(--pivot)} .pm-s strong{color:var(--fg);font-weight:600}
+.chip{display:inline-flex;align-items:center;gap:6px;font:500 12px var(--sans);color:var(--primary);border:1px solid var(--border);border-radius:999px;padding:3px 10px;max-width:100%}
+.wn-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;flex-wrap:wrap} .wn-h h3,.wi-head h3{margin:0;display:flex;align-items:center;gap:8px} .wn-h h3 .ic,.wi-head h3 .ic{color:var(--primary)}
+.wn-n{margin:0 0 16px;color:var(--muted-fg);font-size:15px}
+.tl.wn li{padding-bottom:14px}
+.icp{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr);gap:12px 16px;margin:0;font-size:15px}
+.icp dt{display:flex;gap:8px;align-items:flex-start;color:var(--muted-fg);font-weight:500;font-size:14px} .icp dt .ic{margin-top:4px;color:var(--primary)}
+.gq{margin:0;padding:10px 14px;border-left:3px solid var(--secondary);background:var(--bg);border-radius:0 8px 8px 0;font-size:15px;font-style:italic}
+.gq+.gq{margin-top:8px} .gtm-h{font:700 20px/1.3 var(--sans);margin:4px 0 6px} .gtm-l{font:600 12px var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--muted-fg);margin:var(--s2) 0 6px}
+.gtm-rec{outline:2px solid var(--primary);outline-offset:-1px} .pos{font:500 19px/1.55 var(--sans);margin:0}
+.st-ok{color:var(--go)} .st-bad{color:var(--nogo)} .st-unk{color:var(--muted-fg)}
+.qa{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.qa li{display:grid;gap:4px;padding-bottom:12px;border-bottom:1px solid var(--line)} .qa li:last-child{border-bottom:0;padding-bottom:0}
+.qa-q{font-weight:600} .qa-v{color:var(--fg)} .qa-f{display:flex;flex-wrap:wrap;gap:6px;font:400 12px var(--mono);color:var(--muted-fg)} .qa-f span{padding:1px 7px;border-radius:6px;background:var(--muted)}
+.qa-e{font:500 13px var(--mono);color:var(--primary)}
+.tc{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 12px;align-items:start;padding:10px 0;border-bottom:1px solid var(--line)} .tc:last-child{border-bottom:0}
+.tc-k{font-weight:600} .tc-n{grid-column:2;color:var(--muted-fg);font-size:15px}
+.icp dd{margin:0;min-width:0} .chips{display:flex;flex-wrap:wrap;gap:6px}
+/* what-if sliders */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.wi-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px} .wi-head .note{margin-top:4px}
+.wi-reset{min-height:44px;flex:none}
+.wi{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:var(--s4);margin-top:var(--s3)}
+.wi-ctl{display:grid;gap:10px}
+.wi-l{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-weight:500;font-size:15px}
+.wi-v{font:600 16px var(--mono);color:var(--fg);white-space:nowrap} .wi-v.chg{color:var(--primary)} .wi-v.chg::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--secondary);margin-right:6px;vertical-align:3px}
+.wi-tr{position:relative}
+.wi-r{-webkit-appearance:none;appearance:none;display:block;width:100%;height:44px;margin:0;background:transparent;cursor:pointer;--p:.5}
+.wi-r::-webkit-slider-runnable-track{height:6px;border-radius:99px;background:linear-gradient(90deg,var(--primary) calc(11px + (100% - 22px) * var(--p)),var(--muted) 0)}
+.wi-r::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;margin-top:-8px;border-radius:50%;background:var(--card);border:3px solid var(--primary);box-shadow:0 1px 3px rgba(15,23,42,.25);transition:transform .15s}
+.wi-r::-moz-range-track{height:6px;border-radius:99px;background:var(--muted)} .wi-r::-moz-range-progress{height:6px;border-radius:99px;background:var(--primary)}
+.wi-r::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--card);border:3px solid var(--primary);box-shadow:0 1px 3px rgba(15,23,42,.25)}
+.wi-r:active::-webkit-slider-thumb{transform:scale(1.15)}
+.wi-r:focus-visible{outline:none} .wi-r:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 5px color-mix(in srgb,var(--secondary) 35%,transparent)} .wi-r:focus-visible::-moz-range-thumb{box-shadow:0 0 0 5px color-mix(in srgb,var(--secondary) 35%,transparent)}
+.wi-0{position:absolute;bottom:6px;left:calc(11px + (100% - 22px) * var(--b) - 1px);width:2px;height:7px;border-radius:1px;background:var(--muted-fg);opacity:.6;pointer-events:none}
+.wi-h{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--muted-fg);margin-top:-4px} .wi-h span:last-child{font-family:var(--mono);white-space:nowrap}
+.wi-out{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-content:start}
+.wi-t{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px 16px;min-width:0} .wi-t.wide{grid-column:1/-1}
+.wi-k{font-size:13px;color:var(--muted-fg);font-weight:500}
+.wi-n{font:600 26px/1.2 var(--mono);margin:6px 0 4px;letter-spacing:-.02em;overflow-wrap:anywhere}
+.wi-m{font-size:13px;color:var(--muted-fg)} .wi-m.bad{color:var(--nogo)} .wi-m.ok{color:var(--pivot)} .wi-m.good{color:var(--go)}
+.wi-scale{position:relative;display:flex;height:8px;margin:10px 0 8px} .wi-scale span{flex:1;background:var(--nogo-bg);border-radius:99px 0 0 99px} .wi-scale span:nth-child(2){flex:2;background:var(--pivot-bg);border-radius:0} .wi-scale span:nth-child(3){flex:3;background:var(--go-bg);border-radius:0 99px 99px 0}
+.wi-scale i{position:absolute;top:-5px;width:4px;height:18px;border-radius:2px;background:var(--fg);transition:left .2s ease-out}
+.wi-ax{position:relative;height:14px;margin:-2px 0 6px;font:400 11px var(--mono);color:var(--muted-fg)} .wi-ax b{position:absolute;top:0;font-weight:400;transform:translateX(-50%)} .wi-ax b:first-child{transform:none} .wi-ax b:last-child{transform:translateX(-100%)}
+.wi-dots{display:flex;gap:4px;margin:10px 0 8px;max-width:260px} .wi-dots i{flex:1;height:8px;border-radius:99px;background:var(--muted);transition:background .2s}
+.wi-dots.s1 i.on{background:var(--nogo-fill)} .wi-dots.s2 i.on,.wi-dots.s3 i.on{background:var(--pivot-fill)} .wi-dots.s4 i.on,.wi-dots.s5 i.on{background:var(--go-fill)}
+@media (max-width:1024px){.wi{grid-template-columns:1fr}}
+@media (max-width:480px){.icp{grid-template-columns:1fr;gap:4px} .icp dd{margin-bottom:10px} .wi-n{font-size:20px} .wi-t{padding:12px} .wi-head{flex-direction:column} .btn.wi-reset span{display:inline}}
+
+ol.src{margin:0;padding-left:26px;font-size:14px;columns:2;column-gap:var(--s4)}
+ol.src li{padding:4px 0;break-inside:avoid;color:var(--muted-fg)} ol.src li::marker{font:600 12px var(--mono);color:var(--primary)}
+ol.src li:target{background:var(--pivot-bg);border-radius:6px}
+footer{max-width:1200px;margin:0 auto;padding:0 var(--s3) var(--s5);color:var(--muted-fg);font-size:13px}
+.err{max-width:560px;margin:20vh auto}
+
+/* motion (ui-ux-pro-max Stagger List: 400ms, back-out) — only when JS runs and motion is allowed */
+.motion .rv{opacity:0;transform:translateY(16px) scale(.98)}
+.motion .rv.in{opacity:1;transform:none;transition:opacity .4s ease-out,transform .45s cubic-bezier(.34,1.4,.64,1);transition-delay:var(--d,0ms)}
+.motion .grow .bar{transform:scaleX(0);transform-box:fill-box;transform-origin:left center}
+.motion .grow.in .bar{transform:scaleX(1);transition:transform .8s cubic-bezier(.22,1,.36,1) .15s}
+.motion .verdict{opacity:0;transform:scale(.6)}
+.motion .verdict.in{opacity:1;transform:none;transition:opacity .2s,transform .45s cubic-bezier(.34,1.56,.64,1)}
+
+/* responsive: 375 / 768 / 1024 / 1440 */
+@media (max-width:1024px){.g4,.g3{grid-template-columns:repeat(2,minmax(0,1fr))} .hero{grid-template-columns:1fr} .score{order:-1}}
+@media (max-width:768px){.g2,.g3{grid-template-columns:1fr} ol.src{columns:1} .topbar .t{display:none} main{padding:var(--s3) var(--s2) var(--s5)} .topbar,.tabs{padding-left:var(--s2);padding-right:var(--s2)} .hero{padding:var(--s3)}}
+@media (max-width:480px){.g4{grid-template-columns:1fr} .tl li{grid-template-columns:64px 20px minmax(0,1fr)} .ks li{grid-template-columns:28px minmax(0,1fr)} .ks li .badge{grid-column:2;justify-self:start} .btn span{display:none}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto} *{transition:none!important}}
+@media print{
+  @page{size:A4;margin:14mm 12mm}
+  :root{--bg:#fff;--card:#fff;--shadow:none}
+  body{font-size:11pt;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .top,#tip{display:none} main{padding:0} .card{break-inside:avoid;box-shadow:none}
+  .motion .rv,.motion .verdict{opacity:1;transform:none} .motion .grow .bar{transform:none}
+  section{margin-top:var(--s3)} .hero{grid-template-columns:1.5fr 1fr} .score{order:0} a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<div id="tip" role="tooltip"></div>
+<div id="app"></div>
+<script>
+(() => {
+"use strict";
+const main = () => {
+const app = document.getElementById("app");
+const fail = (title, detail) => { app.innerHTML = '<div class="err card"><h2></h2><p></p></div>'; app.querySelector("h2").textContent = title; app.querySelector("p").textContent = detail; };
+/* data: the embedded JSON block #kmi-data (standalone export, inert JSON, never executed) wins over report-data.js */
+let D = window.KMI_DATA;
+const jd = document.getElementById("kmi-data");
+if (jd) { try { D = JSON.parse(jd.textContent); } catch (e) { fail("Report data could not be read", "The embedded report data is not valid JSON (" + (e && e.message || e) + "). Export the report again."); return; } }
+if (!D || typeof D !== "object") { fail("Report data not found", "Keep report.html and report-data.js in the same folder, or run /kill-my-idea:kill again."); return; }
+if (!D.verdict || typeof D.verdict !== "object" || !D.idea || typeof D.idea !== "object") { fail("Report data is incomplete", "report-data.js must contain idea and verdict objects (see report-data.schema.json). Run /kill-my-idea:kill again."); return; }
+try {
+const I = D.idea || {}, V = D.verdict || {}, N = D.narrative || {}, M = V.metrics || {};
+/* security: values rendered without escaping must be numbers or known enums */
+const num = v => (v === null || v === undefined || v === "") ? null : (Number.isFinite(+v) ? +v : null);
+V.score = num(V.score) ?? 0;
+if (!["GO", "PIVOT", "NO-GO"].includes(V.verdict)) V.verdict = V.score >= 70 ? "GO" : V.score >= 50 ? "PIVOT" : "NO-GO";
+if (V.criteria) for (const k in V.criteria) V.criteria[k] = num(V.criteria[k]) ?? 0;
+const LMH = v => ["L", "M", "H"].includes(v) ? v : "M";
+(N.rescue || []).forEach(r => { r.score_after = num(r.score_after) ?? 0; if (!["doable", "hard", "very-hard"].includes(r.difficulty)) r.difficulty = "hard"; });
+(N.competitors || []).forEach(c => { c.traction = num(c.traction); c.price_low = num(c.price_low); c.price_high = num(c.price_high); });
+(N.scenarios || []).forEach(sc => { ["customers_month", "revenue_month", "costs_month"].forEach(k => { sc[k] = num(sc[k]); }); });
+(N.risks || []).forEach(r => { r.likelihood = LMH(r.likelihood); r.impact = LMH(r.impact); });
+if (I.price) I.price.amount = num(I.price.amount);
+const obj = x => x && typeof x === "object" && !Array.isArray(x) ? x : null;
+N.premortem = Array.isArray(N.premortem) ? N.premortem.filter(p => obj(p) && p.cause).slice(0, 3) : [];
+N.premortem.forEach(p => { p.likelihood = LMH(p.likelihood); });
+const WN = obj(N.why_now);
+if (WN) { if (!["now", "early", "late", "unclear"].includes(WN.verdict)) WN.verdict = "unclear"; WN.changes = Array.isArray(WN.changes) ? WN.changes.filter(c => obj(c) && c.what).slice(0, 6) : []; }
+const ICP = obj(N.icp);
+if (ICP) ICP.where = Array.isArray(ICP.where) ? ICP.where.filter(w => typeof w === "string" && w.trim()).slice(0, 8) : typeof ICP.where === "string" && ICP.where.trim() ? [ICP.where] : [];
+/* language: UI labels follow the idea's language (en, fr) */
+const LANG = String(I.language || N.language || "en").slice(0, 2).toLowerCase() === "fr" ? "fr" : "en";
+const FR = {
+  "Quick mode": "Mode rapide",
+  "Go to market": "Mise sur le marché", "Who to sell to, how to get in, what to say, and under what name. Built from the evidence above.": "À qui vendre, par où entrer, quoi dire et sous quel nom. Construit à partir des preuves ci-dessus.",
+  "Personas": "Personas", "In their words": "Avec leurs mots", "Uses today": "Utilise aujourd'hui", "Pays today": "Paie aujourd'hui", "Starts looking when": "Commence à chercher quand", "Objections": "Objections", "Reach them": "Où les toucher",
+  "Ways in": "Par où entrer", "Recommended": "Recommandé", "Segment": "Segment", "Channel": "Canal", "Price": "Prix", "First 10 customers": "10 premiers clients", "Risks": "Risques",
+  "Promotion angles": "Axes de communication", "Pain": "Douleur", "Proof": "Preuve", "Must beat": "Doit battre", "Landing page for the test": "Page d'atterrissage du test",
+  "Branding": "Marque", "Positioning": "Positionnement", "Names, checked by search": "Noms, vérifiés par recherche", "Name": "Nom", "Trademark": "Marque déposée", "Handles": "Comptes", "Checked": "Vérifié le", "Tone": "Ton",
+  "Answers and checks": "Réponses et vérifications", "What you told us, and the checks for this kind of business.": "Ce que vous avez dit, et les vérifications propres à ce type d'activité.",
+  "Your answers": "Vos réponses", "After the research": "Après la recherche", "Checks for this type": "Vérifications pour ce type", "Hit": "Touché", "Clear": "Écarté", "Not checked": "Non vérifié", "Still assumed": "Encore supposé",
+  "SaaS": "SaaS", "Marketplace": "Place de marché", "Mobile app": "Appli mobile", "E-commerce": "E-commerce", "Content": "Contenu", "Service": "Service", "Local business": "Commerce local",
+  "Executive summary": "Synthèse", "Could it be saved?": "Peut-on la sauver ?", "How to make it stronger": "Comment la renforcer", "Next step: 7-day test": "Prochaine étape : test de 7 jours",
+  "Evidence": "Preuves", "Market": "Marché", "Competition": "Concurrence", "What customers say": "Ce que disent les clients", "Unit economics": "Économie unitaire", "Countries": "Pays",
+  "Risks": "Risques", "Scoring": "Notation", "Sources": "Sources", "Recommendation": "Recommandation", "Lesson:": "Leçon :", "Plan": "Plan", "Stop if": "Arrêter si",
+  "LTV : CAC": "LTV : CAC", "Break-even": "Point mort", "Time to first sale": "Délai avant la 1re vente", "Competitors found": "Concurrents trouvés",
+  "Healthy is 3 or more": "Sain à partir de 3", "Each paid customer loses money": "Chaque client payant fait perdre de l'argent", "Positive but fragile": "Positif mais fragile", "Healthy": "Sain",
+  "Customers needed per month": "Clients nécessaires par mois", "From today": "À partir d'aujourd'hui", "Doable": "Faisable", "Hard": "Difficile", "Very hard": "Très difficile",
+  "Effort": "Effort", "Cost": "Coût", "Needs": "Besoins", "Hit": "Touché", "Clear": "Écarté", "Kill shots": "Points de rupture",
+  "Free alternative": "Alternative gratuite", "Strong direct competitor": "Concurrent direct solide", "Failed attempts before": "Échecs précédents", "No distribution channel": "Pas de canal de distribution",
+  "Costs eat the margin": "Les coûts mangent la marge", "Weak or falling demand": "Demande faible ou en baisse", "Legal or platform risk": "Risque juridique ou de plateforme", "Saturated wave of look-alike launches": "Vague saturée de lancements similaires",
+  "Fact-check of the source": "Vérification de la source", "Claim": "Affirmation", "Verdict": "Verdict", "True": "Vrai", "Partly true": "Partiellement vrai", "False": "Faux", "Not verified": "Non vérifié",
+  "Who buys": "Qui achète", "Their problem": "Leur problème", "What they use today": "Ce qu'ils utilisent aujourd'hui", "Market size": "Taille du marché", "Total market": "Marché total",
+  "Market you can serve": "Marché adressable", "What you can win in year 1": "Ce que vous pouvez gagner en 1re année", "Demand trend:": "Tendance de la demande :", "Ways to make money with it": "Façons d'en tirer de l'argent",
+  "Option": "Option", "Who pays": "Qui paie", "Best": "Meilleure", "Price vs traction": "Prix vs traction", "All competitors": "Tous les concurrents", "Name": "Nom", "Price": "Prix", "Traction": "Traction", "Free": "Gratuit",
+  "Metric": "Indicateur", "Value": "Valeur", "Launch": "Lancer ici", "All metrics": "Tous les indicateurs", "Monthly scenarios": "Scénarios mensuels", "Likelihood vs impact": "Probabilité vs impact",
+  "Risks and what to do": "Risques et parades", "Criterion": "Critère", "Score": "Note", "Points": "Points", "Total": "Total", "out of 100": "sur 100", "Save PDF": "Enregistrer en PDF", "Share card": "Carte à partager",
+  "sourced": "sourcé", "estimate": "estimation", "unknown": "inconnu", "Profit potential": "Potentiel de profit", "Feasibility for you": "Faisabilité pour vous", "Time to first revenue": "Délai avant le 1er revenu",
+  "Market demand": "Demande du marché", "Competitive room": "Espace concurrentiel", "Risk (5 = low)": "Risque (5 = faible)", "Founder fit": "Adéquation fondateur",
+  "Gross margin": "Marge brute", "Pricing power": "Pouvoir de fixation des prix", "Build effort": "Effort de construction", "Skills match": "Adéquation des compétences", "Capital needed": "Capital nécessaire",
+  "Time to MVP": "Délai avant MVP", "Sales cycle": "Cycle de vente", "Channel readiness": "Canal prêt", "Search demand": "Demande en recherche", "Trend": "Tendance", "Willingness to pay": "Disposition à payer",
+  "Free alternatives": "Alternatives gratuites", "Competitor density": "Densité concurrentielle", "Differentiation": "Différenciation", "Legal and regulatory": "Juridique et réglementaire",
+  "Platform dependency": "Dépendance aux plateformes", "Market risk": "Risque de marché", "Skills": "Compétences", "Assets and network": "Actifs et réseau", "Interest": "Intérêt",
+  "High confidence": "Confiance élevée", "Medium confidence": "Confiance moyenne", "Low confidence": "Confiance faible", "Full verdict": "Verdict complet", "Deep dive": "Analyse approfondie", "Roast": "Roast", "Fact-check": "Vérification",
+  "Not checked": "Non vérifié", "Not checked in this run.": "Non vérifié lors de cette analyse.", "Primary": "Principal", "The case for it": "Ce qui plaide pour", "Time to first revenue": "Délai avant le 1er revenu",
+  "primary": "primaire", "secondary": "secondaire", "tertiary": "tertiaire", "Variable cost per unit": "Coût variable unitaire", "Monthly churn": "Attrition mensuelle", "Customer lifetime": "Durée de vie client", "Conversion rate": "Taux de conversion", "Fixed costs / month": "Coûts fixes / mois",
+  "Time to first revenue (weeks)": "Délai avant le 1er revenu (semaines)", "Payback (months)": "Retour sur CAC (mois)", "Break-even (customers/month)": "Point mort (clients/mois)", "Competitor prices": "Prix des concurrents", "SOM (year 1)": "SOM (année 1)",
+  "R1 · free equivalent, no edge": "R1 · équivalent gratuit, pas d'avantage", "R2 · no channel: capped at 69": "R2 · pas de canal : plafonné à 69", "R3 · saturated wave": "R3 · vague saturée", "R4 · LTV : CAC below 1": "R4 · LTV : CAC sous 1", "R5 · kill-shot coherence": "R5 · cohérence des points de rupture", "R6 · loses money, no channel: capped at 49": "R6 · perd de l'argent, pas de canal : plafonné à 49", "R7 · unprofitable model: −10, at most 49": "R7 · modèle non rentable : −10, au plus 49",
+  "Pre-mortem": "Pré-mortem", "It's 12 months later and it failed. The most likely reasons.": "Douze mois plus tard, l'idée a échoué. Voici les raisons les plus probables.",
+  "High likelihood": "Probabilité élevée", "Medium likelihood": "Probabilité moyenne", "Low likelihood": "Probabilité faible", "Early signal:": "Signal précurseur :", "linked to": "lié à",
+  "Why now?": "Pourquoi maintenant ?", "Good timing": "Bon timing", "Too early": "Trop tôt", "Window closing": "Fenêtre qui se referme", "Unclear": "Incertain",
+  "Ideal customer": "Client idéal", "Who": "Qui", "Where they hang out": "Où les trouver", "What they pay for today": "Ce qu'ils paient aujourd'hui", "Budget": "Budget", "Buying trigger": "Déclencheur d'achat",
+  "What if?": "Et si ?", "Reset": "Réinitialiser", "Reset to the report's values": "Revenir aux valeurs du rapport", "Payback": "Retour sur CAC", "Projected sub-score": "Sous-note projetée", "LTV : CAC sub-score": "Sous-note LTV : CAC",
+  "Estimates for exploring; the verdict above is not recalculated.": "Estimations pour explorer ; le verdict ci-dessus n'est pas recalculé.", "Move a slider to test an assumption.": "Déplacez un curseur pour tester une hypothèse.",
+  "months": "mois", "purchases": "achats", "month": "mois", "purchase": "achat", "never": "jamais", "/ month": "/ mois", "/ year": "/ an", "Report": "Rapport", "From churn": "Déduit de l'attrition", "Assumed": "Hypothèse", "Effective CAC": "CAC effectif",
+  "Customer lifetime (purchases)": "Durée de vie client (achats)", "Customer lifetime (months)": "Durée de vie client (mois)", "Lifetime gross profit per customer": "Marge brute par client sur sa durée de vie",
+  "Longer than the customer lifetime": "Plus long que la durée de vie client", "Months to earn back the CAC": "Mois pour rembourser le CAC", "Purchases to earn back the CAC": "Achats pour rembourser le CAC",
+  "Paying customers needed per month": "Clients payants nécessaires par mois", "Scaled by the conversion rate": "Ajusté selon le taux de conversion", "Free to acquire": "Acquisition gratuite", "In the report": "Dans le rapport" };
+const FR_RX = [[/^As pitched it scores (\d+)\. Each option fixes at least one kill shot\. New scores are estimates\.$/, "Telle que présentée, l'idée obtient $1. Chaque option corrige au moins un point de rupture. Les nouvelles notes sont des estimations."],
+  [/^(\d+) of (\d+) kill shots landed\.$/, "$1 points de rupture sur $2 ont touché."], [/^(\d+) competitors and alternatives found\.$/, "$1 concurrents et alternatives trouvés."],
+  [/^(\d+) sources\. Every sourced number links here\.$/, "$1 sources. Chaque chiffre sourcé renvoie ici."], [/^(\d+)\/100 across seven weighted criteria and 21 sub-scores\.$/, "$1/100 sur sept critères pondérés et 21 sous-notes."],
+  [/^weight (\d+)$/, "poids $1"], [/^Priced (.*)$/, "Prix : $1"], [/^Recommended launch market:$/, "Marché de lancement recommandé :"],
+  [/^(\d+) of (\d+) kill shots landed\.( (\d+) not checked\.)?$/, (m, a, b, c, d) => `${a} points de rupture sur ${b} ont touché.${d ? ` ${d} non vérifié${d > 1 ? "s" : ""}.` : ""}`],
+  [/^(\d+) points? from (GO|PIVOT)$/, "À $1 point(s) de $2"], [/^(\d+) points? above the GO line$/, "$1 point(s) au-dessus du seuil GO"], [/^(\d+) launches$/, "$1 lancements"],
+  [/^(\d+) sources from (\d+) domains?\.(.*)$/, (m, a, b, rest) => `${a} sources de ${b} domaine${b > 1 ? "s" : ""}.${rest.replace(/(\d+) primary/, "$1 primaires").replace(/(\d+) secondary/, "$1 secondaires").replace(/(\d+) tertiary/, "$1 tertiaires").replace("Every sourced number links here.", "Chaque chiffre sourcé renvoie ici.")}`],
+  [/^The sub-scores recompute to (\d+), not (\d+)\. Run \/kill-my-idea:kill again to fix the score\.$/, "Les sous-notes donnent $1, pas $2. Relancez /kill-my-idea:kill pour corriger la note."],
+  [/^What a customer is worth, what one costs, and how many you need\.$/, "Ce que vaut un client, ce qu'il coûte, et combien il en faut."]];
+const T = k => (LANG === "fr" && FR[k]) || k;
+const translateUI = root => { if (LANG !== "fr") return; const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); const nodes = []; while (w.nextNode()) nodes.push(w.currentNode);
+  for (const n of nodes) { if (n.parentElement && n.parentElement.closest(".answer,.kf p,.rx .ch,.rx .why,.e,.snote,.quote,ol.src,.tl,.stop ul,td,.pm-c,.pm-d,.icp-v,.wn-n,.chip,.chips,.qa-v,.tc-n,.gtm-u")) continue;
+    const raw = n.textContent, t = raw.trim(); if (!t) continue; let out = FR[t];
+    if (!out) for (const [rx, rep] of FR_RX) if (rx.test(t)) { out = t.replace(rx, rep); break; }
+    if (out) n.textContent = raw.replace(t, out); }
+  document.documentElement.lang = "fr"; };
+const CAP = { key_findings: 3, rescue: 5, competitors: 40, customer_voice: 24, scenarios: 6, risks: 15, test_plan: 12, fact_checks: 20, use_cases: 8, tldr: 6, sources: 150 };
+for (const k in CAP) if (Array.isArray(N[k])) N[k] = N[k].slice(0, CAP[k]);
+if (Array.isArray(V.sources)) V.sources = V.sources.slice(0, 150);
+if (Array.isArray(V.kill_criteria)) V.kill_criteria = V.kill_criteria.slice(0, 10);
+const VC = { "GO": "var(--go-fill)", "PIVOT": "var(--pivot-fill)", "NO-GO": "var(--nogo-fill)" };
+const esc = s => String(s ?? "").slice(0, 4000).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const has = x => Array.isArray(x) ? x.length > 0 : x && typeof x === "object" ? Object.keys(x).length > 0 : !!x;
+const rt = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong class="kw">$1</strong>');
+const vlabel = s => s >= 70 ? "GO" : s >= 50 ? "PIVOT" : "NO-GO";
+const plain = h => String(h ?? "").replace(/<[^>]+>/g, "");
+/* security: only http(s) links; tooltips are plain text rendered with textContent (report data comes from web research) */
+const safeUrl = u => { try { const x = new URL(String(u || ""), "https://example.invalid/"); return /^https?:$/.test(x.protocol) && x.hostname !== "example.invalid" ? x.href : null; } catch (e) { return null; } };
+const link = (u, text) => { const h = safeUrl(u); return h ? `<a href="${esc(h)}" target="_blank" rel="noopener noreferrer">${text}</a>` : text; };
+const tipA = (title, body) => `${title ? `data-tip-t="${esc(title)}" ` : ""}data-tip="${esc(body)}"`;
+document.title = `${V.verdict || ""} ${V.score ?? ""}/100 · ${I.title || "kill-my-idea report"}`;
+
+/* Lucide icons, stroke 2 */
+const L = { check: '<path d="M20 6 9 17l-5-5"/>', layers: '<path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/>', search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>', x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>', rotate: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+  alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>', arrow: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+  printer: '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
+  info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>', target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  users: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>', scale: '<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>',
+  flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/>', share: '<path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/>', chevron: '<path d="m9 18 6-6-6-6"/>' };
+const ic = (n, sz = 16) => `<svg class="ic" width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${L[n] || L.info}</svg>`;
+const VICON = { "GO": "check", "PIVOT": "rotate", "NO-GO": "x" };
+const vbadge = s => { const v = vlabel(s); return `<span class="badge b-${v}">${ic(VICON[v], 14)}${v} <span class="num">${s}</span></span>`; };
+
+/* footnotes */
+const SRC = [], SIDX = new Map();
+const addSrc = s => { const o = typeof s === "string" ? { url: s } : s; if (!o || !o.url) return 0;
+  if (!SIDX.has(o.url)) { SRC.push({ ...o }); SIDX.set(o.url, SRC.length); } else Object.assign(SRC[SIDX.get(o.url) - 1], o); return SIDX.get(o.url); };
+(N.sources || []).forEach(addSrc); (V.sources || []).forEach(addSrc);
+const fn = url => { const n = url ? addSrc(url) : 0; return n ? `<sup class="fn"><a href="#src-${n}" aria-label="Source ${n}">[${n}]</a></sup>` : ""; };
+
+/* numbers */
+const CUR = { USD: "$", EUR: "€", GBP: "£" };
+const short = v => { const a = Math.abs(v); return a >= 1e9 ? (v / 1e9).toFixed(1) + "B" : a >= 1e6 ? (v / 1e6).toFixed(1).replace(/\.0$/, "") + "M" : a >= 1e4 ? Math.round(v / 1e3) + "k" : Number.isInteger(v) ? v.toLocaleString("en") : (+v.toFixed(2)).toString(); };
+const fmt = (v, unit) => {
+  if (v === null || v === undefined || v === "unknown") return null;
+  if (typeof v !== "number") return esc(v);
+  if (unit === "%") return short(v) + "%";
+  const um = /^(USD|EUR|GBP)(?!\/(?:USD|EUR|GBP))\b\s*(.*)$/i.exec(unit || ""), sym = um ? CUR[um[1].toUpperCase()] : "", rest = um ? um[2] : (unit || "");
+  return sym + short(v) + (rest ? `<span class="u">${rest.startsWith("/") ? "" : " "}${esc(rest)}</span>` : "");
+};
+const evTag = m => m.basis === "sourced" ? `<span class="ev s">${ic("check", 11)}sourced</span>${fn(m.source)}`
+  : m.basis === "estimate" ? `<span class="ev" ${tipA("Estimate", m.reasoning || "Reasoning in the report")} tabindex="0">estimate</span>` : "";
+const metric = (m, key = "") => {
+  if (m === null || m === undefined) return '<span class="unk">unknown</span>';
+  if (typeof m !== "object") return typeof m === "number" ? `<span class="num">${short(m)}${/_pct$/.test(key) ? "%" : ""}</span>` : esc(m);
+  const val = fmt(m.value, m.unit || (/_pct$/.test(key) ? "%" : ""));
+  if (!val || m.basis === "unknown") return `<span class="unk" ${tipA("Unknown", m.reasoning || "Not found in public sources")} tabindex="0">unknown</span>`;
+  return `${typeof m.value === "number" ? `<span class="num">${val}</span>` : val}${evTag(m)}`;
+};
+
+/* layout helpers */
+const TABS = [];
+const section = (id, title, sub, body) => { if (!body) return ""; TABS.push([id, title]);
+  return `<section id="${id}" aria-labelledby="${id}-h"><div class="sh"><h2 id="${id}-h">${esc(title)}</h2>${sub ? `<p class="sub">${sub}</p>` : ""}</div>${body}</section>`; };
+const card = (html, d = 0) => `<div class="card rv" style="--d:${d}ms">${html}</div>`;
+
+/* hero: score ring */
+const ring = (score, v) => { const r = 88, c = 2 * Math.PI * r, off = c * (1 - score / 100);
+  const tick = t => { const a = (t / 100) * 2 * Math.PI - Math.PI / 2; return `<line x1="${(110 + (r - 12) * Math.cos(a)).toFixed(1)}" y1="${(110 + (r - 12) * Math.sin(a)).toFixed(1)}" x2="${(110 + (r + 12) * Math.cos(a)).toFixed(1)}" y2="${(110 + (r + 12) * Math.sin(a)).toFixed(1)}" stroke="var(--muted-fg)" stroke-width="2" opacity=".45"/>`; };
+  return `<svg class="ring" viewBox="0 0 220 220" role="img" aria-label="Score ${score} out of 100">
+    <circle cx="110" cy="110" r="${r}" fill="none" stroke="var(--muted)" stroke-width="16"/>${tick(50)}${tick(70)}
+    <circle class="ring-arc" cx="110" cy="110" r="${r}" fill="none" stroke="${VC[v] || "var(--primary)"}" stroke-width="16" stroke-linecap="round" transform="rotate(-90 110 110)" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" data-c="${c.toFixed(1)}"/>
+    <text class="ring-num" x="110" y="122" text-anchor="middle" style="font-size:60px;font-weight:600;fill:var(--fg)">${score}</text>
+    <text x="110" y="150" text-anchor="middle" style="font:500 13px var(--sans);fill:var(--muted-fg)">out of 100</text></svg>`; };
+const CN = { FR: "France", BE: "Belgium", US: "United States", GB: "United Kingdom", UK: "United Kingdom", DE: "Germany", ES: "Spain", IT: "Italy", CA: "Canada", CH: "Switzerland", NL: "Netherlands", PT: "Portugal", AU: "Australia",
+  IE: "Ireland", AT: "Austria", LU: "Luxembourg", SE: "Sweden", DK: "Denmark", NO: "Norway", FI: "Finland", PL: "Poland", CZ: "Czechia", GR: "Greece", RO: "Romania", BR: "Brazil", MX: "Mexico", AR: "Argentina", IN: "India", JP: "Japan", KR: "South Korea", SG: "Singapore", AE: "United Arab Emirates", SA: "Saudi Arabia", ZA: "South Africa", MA: "Morocco", TN: "Tunisia", SN: "Senegal", CI: "Ivory Coast", NZ: "New Zealand", TR: "Türkiye", IL: "Israel", NG: "Nigeria", KE: "Kenya", EG: "Egypt" };
+const CN_FR = { FR: "France", BE: "Belgique", US: "États-Unis", GB: "Royaume-Uni", UK: "Royaume-Uni", DE: "Allemagne", ES: "Espagne", IT: "Italie", CA: "Canada", CH: "Suisse", NL: "Pays-Bas", PT: "Portugal", AU: "Australie",
+  IE: "Irlande", AT: "Autriche", LU: "Luxembourg", SE: "Suède", DK: "Danemark", NO: "Norvège", FI: "Finlande", PL: "Pologne", CZ: "Tchéquie", GR: "Grèce", RO: "Roumanie", BR: "Brésil", MX: "Mexique", AR: "Argentine", IN: "Inde", JP: "Japon", KR: "Corée du Sud", SG: "Singapour", AE: "Émirats arabes unis", SA: "Arabie saoudite", ZA: "Afrique du Sud", MA: "Maroc", TN: "Tunisie", SN: "Sénégal", CI: "Côte d'Ivoire", NZ: "Nouvelle-Zélande", TR: "Turquie", IL: "Israël", NG: "Nigeria", KE: "Kenya", EG: "Égypte" };
+if (String((D.idea && D.idea.language) || (D.narrative && D.narrative.language) || "").slice(0, 2).toLowerCase() === "fr") Object.assign(CN, CN_FR);
+const niceDate = d => { const t = d ? new Date(d + "T12:00:00") : null; return t && !isNaN(t) ? t.toLocaleDateString(String(I.language || "en").slice(0, 2) === "fr" ? "fr-FR" : "en-GB", { day: "numeric", month: "short", year: "numeric" }) : (d || ""); };
+/* confidence (verdict.confidence), score history (deepdive) and distance to the next band */
+const CF = V.confidence && typeof V.confidence === "object" && ["high", "medium", "low"].includes(V.confidence.level) ? V.confidence : null;
+const CFL = { high: "High confidence", medium: "Medium confidence", low: "Low confidence" }, CFC = { high: "b-GO", medium: "b-PIVOT", low: "b-NO-GO" };
+const cfTip = CF ? `${num(CF.sourced_subscores) ?? "?"} of 21 sub-scores sourced, ${num(CF.sources) ?? "?"} sources, ${num(CF.primary_sources) ?? "?"} primary${CF.note ? "\n" + CF.note : ""}` : "";
+const prev = Array.isArray(V.history) && V.history.length ? V.history[V.history.length - 1] : null;
+const prevScore = prev ? num(prev.score) : null;
+const modeLabel = { kill: "Full verdict", deepdive: "Deep dive", roast: "Roast", "check-tweet": "Fact-check" }[V.mode] || "";
+const toBand = s => s >= 70 ? null : s >= 50 ? ["GO", 70 - s] : ["PIVOT", 50 - s];
+const nb = toBand(V.score);
+const nextBand = nb ? `<div class="nb">${nb[1]} ${nb[1] === 1 ? "point" : "points"} from ${nb[0]}</div>` : V.score > 70 ? `<div class="nb">${V.score - 70} ${V.score - 70 === 1 ? "point" : "points"} above the GO line</div>` : "";
+const TYPE_L = { saas: "SaaS", marketplace: "Marketplace", mobile_app: "Mobile app", ecommerce: "E-commerce", content: "Content", service: "Service", local: "Local business" };
+const TC_L = { churn_benchmark: "Churn for this segment", switching_cost: "Switching cost", liquidity: "Liquidity (which side first)", disintermediation: "Sides skipping you",
+  store_search_demand: "App Store search demand", platform_fees: "Store fees and review", contribution_margin: "Margin per order", returns_shipping: "Returns and shipping",
+  rpm: "Revenue per 1,000 views", platform_policy: "Platform policy", founder_time_ceiling: "Your time ceiling", client_concentration: "Client concentration",
+  location_traffic: "Location and traffic", permits_capex: "Permits and upfront cost" };
+const ITYPE = TYPE_L[I.type] ? I.type : null;
+const RUN = V.run && typeof V.run === "object" ? V.run : null;
+const runBits = RUN ? [num(RUN.minutes) !== null ? `${Math.round(num(RUN.minutes))} min` : "", num(RUN.searches) !== null ? `${Math.round(num(RUN.searches))} searches` : "", num(RUN.fetches) !== null ? `${Math.round(num(RUN.fetches))} pages read` : "", num(RUN.subagents) ? `${Math.round(num(RUN.subagents))} research agents` : ""].filter(Boolean) : [];
+const runLine = runBits.length ? `<br>This run: ${runBits.join(" · ")}.` : "";
+const hero = `<div class="card hero">
+  <div><div class="meta"><span class="badge b-neutral">${ic("clock", 14)}${esc(niceDate(V.evaluated || I.created))}</span>${modeLabel ? `<span class="badge b-neutral">${esc(modeLabel)}</span>` : ""}${V.quick === true ? `<span class="badge b-PIVOT">${ic("clock", 14)}Quick mode</span>` : ""}${ITYPE ? `<span class="badge b-neutral">${ic("layers", 14)}${TYPE_L[ITYPE]}</span>` : ""}${(I.countries || []).map(c => `<span class="badge b-neutral">${ic("flag", 14)}${esc(CN[c] || c)}</span>`).join("")}${CF ? `<span class="badge ${CFC[CF.level]}" ${tipA("Confidence", cfTip)} tabindex="0">${ic("info", 14)}${CFL[CF.level]}</span>` : ""}${prevScore !== null && prevScore !== V.score ? `<span class="badge b-neutral" ${tipA("Previous verdict", `${prev.verdict || ""} ${prevScore} (${prev.mode || ""}, ${niceDate(prev.evaluated)})`)} tabindex="0">${prevScore} ${ic("arrow", 12)} ${V.score}</span>` : ""}</div>
+  <h1>${esc(I.title || "Untitled idea")}</h1>${I.solution ? `<p class="pitch">${esc(I.solution)}</p>` : ""}<p class="answer">${rt(N.answer || "")}</p></div>
+  <div class="score">${ring(V.score ?? 0, V.verdict)}<div class="verdict b-${esc(V.verdict)}">${ic(VICON[V.verdict], 20)}${esc(V.verdict || "")}</div>${nextBand}</div></div>`;
+
+/* executive summary: key findings, KPIs, recommendation (pyramid principle: answer first) */
+const lc = M.ltv_cac && typeof M.ltv_cac.value === "number" ? M.ltv_cac.value : null;
+const kpis = [
+  ["scale", "LTV : CAC", M.ltv_cac, lc === null ? ["", "Healthy is 3 or more"] : lc < 1 ? ["bad", "Each paid customer loses money"] : lc < 3 ? ["ok", "Positive but fragile"] : ["good", "Healthy"]],
+  ["target", "Break-even", M.break_even_customers_per_month, ["", "Customers needed per month"]],
+  ["clock", "Time to first revenue", M.time_to_first_revenue_weeks, ["", "From today"]],
+  ["users", "Competitors found", M.competitors_found, ["", M.competitor_price_range && M.competitor_price_range.value ? "Priced " + esc(M.competitor_price_range.value) : ""]]].filter(k => k[2]);
+const KS = { free_alternative: "Free alternative", strong_competitor: "Strong direct competitor", graveyard: "Failed attempts before", no_distribution: "No distribution channel", costs_eat_margin: "Costs eat the margin", weak_demand: "Weak or falling demand", legal_platform_risk: "Legal or platform risk", saturated_wave: "Saturated wave of look-alike launches" };
+const findings = has(N.key_findings) ? N.key_findings.slice(0, 3)
+  : Object.keys(KS).filter(k => V.kill_shots && V.kill_shots[k] && N.kill_shots && N.kill_shots[k]).slice(0, 3).map(k => ({ title: KS[k], detail: N.kill_shots[k].evidence, source: N.kill_shots[k].source }));
+const best = (N.rescue || []).slice().sort((x, y) => y.score_after - x.score_after)[0];
+const reco = N.recommendation || (best ? `${best.change}` : V.cheapest_test || "");
+const sSummary = section("summary", "Executive summary", null,
+  `${findings.length ? `<div class="grid g3">${findings.map((f, n) => card(`<div class="kf"><span class="kf-n">${n + 1}</span><div><h3>${rt(f.title)}</h3><p>${rt(f.detail || "")}${fn(f.source)}</p></div></div>`, n * 70)).join("")}</div>` : ""}
+   ${kpis.length ? `<div class="grid g4" style="margin-top:var(--s3)">${kpis.map(([i, k, m, [cls, h]], n) => card(`<div class="kpi"><div class="k">${ic(i)}${k}</div><div class="v">${metric(m)}</div><div class="m ${cls}">${h}</div></div>`, n * 60)).join("")}</div>` : ""}
+   ${reco ? `<div class="card rv reco" style="margin-top:var(--s3)"><div class="reco-k">${ic("target")}Recommendation</div><p>${rt(reco)}</p>${best && V.verdict !== "GO" ? `<div class="delta">${vbadge(V.score)}<span style="color:var(--muted-fg)">${ic("arrow")}</span>${vbadge(best.score_after)}<span class="badge b-${esc(best.difficulty)}">${ic(best.difficulty === "doable" ? "check" : "alert", 14)}${({ "doable": "Doable", "hard": "Hard", "very-hard": "Very hard" })[best.difficulty] || ""}</span></div>` : ""}</div>` : ""}
+   ${N.steelman ? `<div style="margin-top:var(--s3)">${card(`<div class="kpi"><div class="k">${ic("scale")}The case for it</div><p style="margin:8px 0 0">${rt(N.steelman)}</p></div>`)}</div>` : ""}
+   ${has(N.tldr) && !has(N.key_findings) ? `<div style="margin-top:var(--s3)">${card(`<ul class="tldr">${N.tldr.map(t => `<li>${ic("chevron")}<span>${rt(t)}</span></li>`).join("")}</ul>${N.lesson ? `<p class="lesson"><strong>Lesson:</strong> ${rt(N.lesson)}</p>` : ""}`)}</div>` : N.lesson ? `<div style="margin-top:var(--s3)">${card(`<p class="lesson" style="margin:0"><strong>Lesson:</strong> ${rt(N.lesson)}</p>`)}</div>` : ""}`);
+
+/* rescue paths */
+const DIFF = { "doable": "Doable", "hard": "Hard", "very-hard": "Very hard" };
+const sRescue = has(N.rescue) ? section("rescue", V.verdict === "GO" ? "How to make it stronger" : "Could it be saved?",
+  `As pitched it scores ${V.score}. Each option fixes at least one kill shot. New scores are estimates.`,
+  `<div class="grid g3">${N.rescue.map((r, n) => `<div class="card rv rx" style="--d:${n * 80}ms">
+    <div class="delta">${vbadge(V.score)}<span style="color:var(--muted-fg)">${ic("arrow")}</span>${vbadge(r.score_after)}</div>
+    <div class="track" role="img" aria-label="Score from ${V.score} to ${r.score_after}"><span style="width:${r.score_after}%;background:${VC[vlabel(r.score_after)]};opacity:.3"></span><span style="width:${V.score}%;background:${VC[vlabel(r.score_after)]}"></span></div>
+    <div class="ch">${rt(r.change)}</div>${r.why ? `<div class="why">${rt(r.why)}</div>` : ""}
+    <div><span class="badge b-${esc(r.difficulty)}">${ic(r.difficulty === "doable" ? "check" : "alert", 14)}${DIFF[r.difficulty] || esc(r.difficulty)}</span></div>
+    <dl class="facts">${r.effort ? `<dt>Effort</dt><dd>${esc(r.effort)}</dd>` : ""}${r.cost ? `<dt>Cost</dt><dd>${esc(r.cost)}</dd>` : ""}${r.requires ? `<dt>Needs</dt><dd>${esc(r.requires)}</dd>` : ""}</dl></div>`).join("")}</div>`) : "";
+
+/* scoring: 7 weighted criteria, each the average of 3 sub-scores (expandable) */
+const W8 = { profit: 25, feasibility: 20, time_to_first_revenue: 15, demand: 15, competition: 10, risk: 10, fit: 5 };
+const LB = { profit: "Profit potential", feasibility: "Feasibility for you", time_to_first_revenue: "Time to first revenue", demand: "Market demand", competition: "Competitive room", risk: "Risk (5 = low)", fit: "Founder fit" };
+const SUB = { gross_margin: "Gross margin", ltv_cac: "LTV : CAC", pricing_power: "Pricing power", build_effort: "Build effort", skills_match: "Skills match", capital_needed: "Capital needed",
+  time_to_mvp: "Time to MVP", sales_cycle: "Sales cycle", channel_readiness: "Channel readiness", search_demand: "Search demand", trend: "Trend", willingness_to_pay: "Willingness to pay",
+  free_alternatives: "Free alternatives", competitor_density: "Competitor density", differentiation: "Differentiation", legal_regulatory: "Legal and regulatory", platform_dependency: "Platform dependency",
+  market_risk: "Market risk", skills: "Skills", assets: "Assets and network", interest: "Interest" };
+const CD = V.criteria_detail || {};
+const bar = (v, max, color) => `<span class="sbar"><span class="bar" style="width:${Math.max(v / max * 100, 2)}%;background:${color}"></span></span>`;
+/* fixed rules (SKILL.md section 5), recorded in verdict.rules_applied */
+const RULES = { R1_free_equivalent: "R1 · free equivalent, no edge", R2_no_channel: "R2 · no channel: capped at 69", R3_saturated_wave: "R3 · saturated wave", R4_ltv_cac_below_1: "R4 · LTV : CAC below 1", R5_kill_shot_coherence: "R5 · kill-shot coherence", R6_unprofitable_no_channel: "R6 · loses money, no channel: capped at 49", R7_unprofitable_model: "R7 · unprofitable model: −10, at most 49" };
+const rules = Array.isArray(V.rules_applied) ? V.rules_applied.filter(r => r && typeof r === "object" && RULES[r.rule]) : [];
+const scoring = () => { const c = V.criteria || {}; let total = 0, raw = 0, haveSubs = true;
+  const rows = Object.keys(W8).map(k => { const s5 = +(c[k] ?? 0), w = W8[k], subs = CD[k] && typeof CD[k] === "object" ? Object.entries(CD[k]) : [];
+    const vals = subs.map(([, sv]) => num(typeof sv === "object" ? sv.score : sv)).filter(x => x !== null);
+    const mean = vals.length === 3 ? vals.reduce((a, b) => a + b, 0) / 3 : null; if (mean === null) haveSubs = false;
+    const pts = Math.round(w * (mean ?? s5) / 5 * 10) / 10; total += Math.round(w * s5 / 5 * 10) / 10; raw += w * (mean ?? s5) / 5;
+    const col = s5 <= 1.5 ? "var(--nogo-fill)" : s5 < 3 ? "var(--pivot-fill)" : "var(--primary)";
+    const head = `<span class="cn">${LB[k]}<span class="cw">weight ${w}</span></span>${bar(s5, 5, col)}<span class="num cs">${s5.toFixed(1)}<span class="u">/5</span></span><span class="num cp">${pts}<span class="u"> / ${w} pts</span></span>`;
+    return subs.length ? `<details class="crit"><summary>${head}${ic("chevron")}</summary><ul class="subs">${subs.map(([sk, sv]) => { const v = typeof sv === "object" ? sv : { score: sv };
+      return `<li><span class="sn">${esc(SUB[sk] || sk.replace(/_/g, " "))}</span>${bar(+v.score || 0, 5, "var(--secondary)")}<span class="num">${(+v.score || 0).toFixed(1)}</span><span class="snote">${rt(v.note || "")}${fn(v.source)}</span></li>`; }).join("")}</ul></details>`
+      : `<div class="crit flat">${head}</div>`; }).join("");
+  const rawShown = num(V.score_raw) ?? (haveSubs ? Math.round(raw * 10) / 10 : null);
+  const expected = Math.floor(raw + 0.5), capped = rules.some(r => r.rule === "R2_no_channel") || (V.kill_shots && V.kill_shots.no_distribution === true);
+  const lc = num(V.metrics && V.metrics.ltv_cac && V.metrics.ltv_cac.value), r6 = rules.some(r => r.rule === "R6_unprofitable_no_channel") || (V.kill_shots && V.kill_shots.no_distribution === true && lc !== null && lc < 1);
+  const pm = haveSubs && CD.profit ? Object.values(CD.profit).reduce((a, x) => a + (+(x && typeof x === "object" ? x.score : x) || 0), 0) / 3 : null;
+  const r7 = pm !== null && pm <= 2 + 1e-9;
+  const cap = r6 || r7 ? 49 : capped || V.quick === true ? 69 : 100;
+  const want = Math.min(r7 ? expected - 10 : expected, cap);
+  const mismatch = haveSubs && V.score !== want && V.score !== Math.round(total);
+  return `<div class="card rv"><div class="crit-h"><span>Criterion</span><span></span><span>Score</span><span>Points</span></div>${rows}
+    <div class="crit-t"><span>Total</span><span class="num">${V.score}<span class="u"> / 100</span>${rawShown !== null && rawShown !== V.score ? `<span class="u"> (raw ${rawShown})</span>` : ""}</span></div>
+    ${rules.length ? `<div class="rules">${rules.map(r => `<span class="badge b-PIVOT" ${tipA(RULES[r.rule], r.effect || "")} tabindex="0">${ic("alert", 13)}${esc(RULES[r.rule])}</span>`).join("")}</div>` : ""}
+    ${mismatch ? `<p class="note warn">${ic("alert", 13)} The sub-scores recompute to ${want}, not ${V.score}. Run /kill-my-idea:kill again to fix the score.</p>` : ""}
+    <p class="note">Each criterion is the mean of three sub-scores from 1 to 5, scored against a fixed rubric. Points = mean ÷ 5 × weight; the total is the sum, rounded half up. Fixed rules then apply: a free equivalent with no edge caps Competitive room at 1.5 (R1), no distribution channel caps the total at 69 (R2), a saturated wave caps Competitive room and differentiation at 1.5 (R3), LTV : CAC below 1 caps Profit potential at 2 (R4), every kill shot hit must show in the sub-scores (R5), and an idea with no channel that loses money on each customer (LTV : CAC below 1) is capped at 49, a NO-GO (R6), and a model whose Profit potential is 2 or less loses 10 points and is at most 49 (R7). ${Object.keys(CD).length ? "Open a criterion to see its sub-scores." : ""} <a href="https://github.com/RemiPelloux/kill-my-idea/blob/main/docs/scoring.md" target="_blank" rel="noopener noreferrer">How scoring works</a></p></div>`; };
+const KSL = Object.keys(KS).filter(k => V.kill_shots && k in V.kill_shots);
+const PK = V.primary_kill_shot && KS[V.primary_kill_shot] && V.kill_shots && V.kill_shots[V.primary_kill_shot] === true ? V.primary_kill_shot : null;
+const ksList = KSL.length ? `<ul class="ks">${KSL.map(k => { const st = V.kill_shots[k], hit = st === true, unk = st === null || st === undefined, ev = (N.kill_shots || {})[k] || {};
+  const extra = k === "saturated_wave" && (num(ev.count) !== null || ev.window) ? ` <span class="badge b-neutral">${num(ev.count) !== null ? `${num(ev.count)} launches` : ""}${ev.window ? `${num(ev.count) !== null ? ", " : ""}${esc(ev.window)}` : ""}</span>` : "";
+  return `<li><span class="dot" style="background:${hit ? "var(--nogo-bg)" : unk ? "var(--muted)" : "var(--go-bg)"};color:${hit ? "var(--nogo)" : unk ? "var(--muted-fg)" : "var(--go)"}">${ic(hit ? "x" : unk ? "info" : "check")}</span>
+    <div><div class="t">${KS[k]}${k === PK ? ` <span class="badge b-NO-GO">${ic("target", 12)}Primary</span>` : ""}${extra}</div>${ev.evidence ? `<div class="e">${rt(ev.evidence)}${fn(ev.source)}</div>` : unk ? `<div class="e">${T("Not checked in this run.")}</div>` : ""}</div>
+    <span class="badge ${hit ? "b-NO-GO" : unk ? "b-neutral" : "b-GO"}">${hit ? "Hit" : unk ? "Not checked" : "Clear"}</span></li>`; }).join("")}</ul>` : "";
+const hits = KSL.filter(k => V.kill_shots[k] === true).length, checked = KSL.filter(k => V.kill_shots[k] === true || V.kill_shots[k] === false).length;
+const sScore = has(V.criteria) ? section("scoring", "Scoring", `${V.score}/100 across seven weighted criteria and 21 sub-scores.`, scoring()) : "";
+
+const FC = { "true": ["GO", "check", "True"], "partly": ["PIVOT", "rotate", "Partly true"], "false": ["NO-GO", "x", "False"], "unverified": ["neutral", "info", "Not verified"] };
+const factTable = has(N.fact_checks) ? (`<div class="scroll"><table><thead><tr><th>Claim</th><th>Verdict</th><th>Evidence</th></tr></thead><tbody>${N.fact_checks.map(f => { const [b, i, l] = FC[f.status] || FC.unverified;
+    return `<tr><td>${rt(f.claim)}</td><td><span class="badge b-${b}">${ic(i, 14)}${l}</span></td><td>${rt(f.evidence || "")}${fn(f.source)}</td></tr>`; }).join("")}</tbody></table></div>`) : "";
+const sEvidence = (ksList || factTable) ? section("evidence", "Evidence", KSL.length ? `${hits} of ${checked} kill shots landed.${checked < KSL.length ? ` ${KSL.length - checked} not checked.` : ""}` : null,
+  `<div class="grid ${ksList && factTable ? "g2" : ""}">${ksList ? card(`<h3>Kill shots</h3>${ksList}`) : ""}${factTable ? card(`<h3>Fact-check of the source</h3>${factTable}`, 80) : ""}</div>`) : "";
+
+
+/* market */
+const funnel = () => { const rows = [["TAM", "Total market", M.tam], ["SAM", "Market you can serve", M.sam], ["SOM", "What you can win in year 1", M.som]].filter(r => r[2]);
+  if (!rows.length) return ""; const nums = rows.map(r => typeof r[2].value === "number" ? r[2].value : null), mx = Math.max(...nums.filter(n => n !== null), 1);
+  return `<h3>Market size</h3><figure class="chart grow">${rows.map(([k, d, m], i) => { const w = nums[i] !== null ? Math.max(Math.sqrt(nums[i] / mx) * 100, 4) : 0;
+    return `<div style="display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:14px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)"><span class="num" style="font-weight:600">${k}</span>
+      <div><svg viewBox="0 0 100 10" preserveAspectRatio="none" style="height:12px"><rect class="bar" width="${w}" height="10" rx="5" fill="var(--primary)" opacity="${1 - i * .25}"/></svg><div style="font-size:13px;color:var(--muted-fg);margin-top:4px">${d}</div></div><div style="text-align:right">${metric(m)}</div></div>`; }).join("")}
+    <figcaption>Bar widths use a square-root scale so the year-1 share stays visible.</figcaption></figure>`; };
+/* why now + ideal customer (narrative.why_now, narrative.icp) */
+const WNB = { now: ["GO", "check", "Good timing"], early: ["PIVOT", "clock", "Too early"], late: ["NO-GO", "alert", "Window closing"], unclear: ["neutral", "info", "Unclear"] };
+const whyNow = WN && (WN.changes.length || WN.note || WN.verdict !== "unclear") ? (() => { const [b, i, l] = WNB[WN.verdict];
+  return card(`<div class="wn-h"><h3>${ic("clock")} Why now?</h3><span class="badge b-${b}">${ic(i, 14)}${l}</span></div>${WN.note ? `<p class="wn-n">${rt(WN.note)}</p>` : ""}
+    ${WN.changes.length ? `<ol class="tl wn">${WN.changes.map(c => `<li><span class="w">${esc(c.when || "")}</span><span class="node"></span><div>${rt(c.what)}${fn(c.source)}</div></li>`).join("")}</ol>` : ""}`); })() : "";
+const icpRows = ICP ? [["users", "Who", ICP.who], ["flag", "Where they hang out", ICP.where.length ? ICP.where : null], ["clock", "What they pay for today", ICP.pays_for_today], ["scale", "Budget", ICP.budget], ["target", "Buying trigger", ICP.trigger]].filter(r => r[2] !== null && r[2] !== undefined && r[2] !== "") : [];
+const icpCard = icpRows.length ? card(`<h3>${ic("target")} Ideal customer</h3><dl class="icp">${icpRows.map(([i, k, v]) => `<dt>${ic(i, 14)}${k}</dt><dd class="${Array.isArray(v) ? "chips" : "icp-v"}">${Array.isArray(v) ? v.map(w => `<span class="badge b-neutral">${esc(w)}</span>`).join("") : rt(v)}</dd>`).join("")}</dl>`, 60) : "";
+const cu = N.customer || {};
+const sMarket = (has(cu) || M.tam || has(N.use_cases) || whyNow || icpCard) ? section("market", "Market", null,
+  `${whyNow || icpCard ? `<div class="grid ${whyNow && icpCard ? "g2" : ""}" style="margin-bottom:var(--s3)">${whyNow}${icpCard}</div>` : ""}
+   ${has(cu) ? `<div class="grid g3">${[["users", "Who buys", cu.segment], ["alert", "Their problem", cu.pain], ["clock", "What they use today", cu.today]].map(([i, k, v], n) => card(`<div class="kpi"><div class="k">${ic(i)}${k}</div><p style="margin:8px 0 0">${rt(v || "unknown")}</p></div>`, n * 60)).join("")}</div>` : ""}
+   <div class="grid g2" style="margin-top:var(--s3)">${M.tam || M.sam ? card(`${funnel()}${M.demand_trend ? `<p style="margin:14px 0 0"><strong>Demand trend:</strong> ${metric(M.demand_trend)}</p>` : ""}`) : ""}
+   ${has(N.use_cases) ? card(`<h3>Ways to make money with it</h3><div class="scroll"><table><thead><tr><th>Option</th><th>Who pays</th><th>Effort</th></tr></thead><tbody>${N.use_cases.map(u => `<tr${u.best ? ' class="hl"' : ""}><td>${esc(u.name)}${u.best ? ` <span class="badge b-GO">${ic("check", 12)}Best</span>` : ""}</td><td>${esc(u.who_pays || "")}</td><td>${esc(u.effort || "")}</td></tr>`).join("")}</tbody></table></div>`, 80) : ""}</div>`) : "";
+
+/* competitors */
+const compMap = () => { const cs = (N.competitors || []).filter(c => c.price_low !== null && c.price_low !== undefined && c.traction); if (cs.length < 2) return "";
+  const W = 600, H = 300, pl = 44, pr = 20, pt = 26, pb = 40, mxP = Math.max(...cs.map(c => c.price_high || c.price_low), (I.price && I.price.amount) || 0) * 1.1 || 1;
+  const x = p => pl + p / mxP * (W - pl - pr), y = t => pt + (5 - t) / 4 * (H - pt - pb), cur = cs[0].currency || (I.price && I.price.currency) || "";
+  const placed = cs.map(c => ({ x: x(c.price_low) - 8, y: y(c.traction) - 8, w: 16, h: 16 }));
+  if (I.price && I.price.amount) placed.push({ x: x(I.price.amount), y: pt - 8, w: 80, h: 16 });
+  const clash = b => placed.some(o => b.x < o.x + o.w && b.x + b.w > o.x && b.y < o.y + o.h && b.y + b.h > o.y) || b.x < pl || b.x + b.w > W || b.y < 0 || b.y + b.h > H - pb + 4;
+  const lab = c => { const cx = x(c.price_low), cy = y(c.traction), w = c.name.length * 6.4 + 4;
+    for (const [dx, dy, a] of [[12, 4, "start"], [-12, 4, "end"], [10, -12, "start"], [-10, -12, "end"], [10, 20, "start"], [-10, 20, "end"]]) { const b = { x: a === "start" ? cx + dx : cx + dx - w, y: cy + dy - 11, w, h: 14 }; if (!clash(b)) { placed.push(b); return [cx + dx, cy + dy, a]; } } return null; };
+  const you = I.price && I.price.amount ? `<line x1="${x(I.price.amount)}" x2="${x(I.price.amount)}" y1="${pt}" y2="${H - pb}" stroke="${VC[V.verdict]}" stroke-dasharray="5 4" stroke-width="2"/><text class="lv" x="${x(I.price.amount) + 6}" y="${pt + 4}" style="fill:${VC[V.verdict]}">Your price</text>` : "";
+  return `<figure class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Competitors by entry price and traction">
+    ${[1, 2, 3, 4, 5].map(t => `<line class="gridl" x1="${pl}" x2="${W - pr}" y1="${y(t)}" y2="${y(t)}"/><text class="ax" x="${pl - 10}" y="${y(t) + 4}" text-anchor="end">${t}</text>`).join("")}
+    ${[0, .25, .5, .75, 1].map(f => `<text class="ax" x="${x(mxP * f)}" y="${H - pb + 18}" text-anchor="middle">${plain(fmt(Math.round(mxP * f), cur)) || "0"}</text>`).join("")}
+    ${you}${cs.map(c => { const l = lab(c), tip = `${plain(fmt(c.price_low, c.currency))}${c.price_high ? "–" + plain(fmt(c.price_high, c.currency)) : ""}, traction ${c.traction}/5${c.gap ? "\nWeak spot: " + c.gap : ""}`;
+      return `<g class="hit" tabindex="0" ${tipA(c.name, tip)}><circle cx="${x(c.price_low)}" cy="${y(c.traction)}" r="14" fill="transparent"/><circle class="mk" cx="${x(c.price_low)}" cy="${y(c.traction)}" r="7" fill="${c.free ? "var(--card)" : "var(--primary)"}" stroke="${c.free ? "var(--nogo)" : "var(--card)"}" stroke-width="${c.free ? 3 : 2}"/>${l ? `<text class="lb" x="${l[0]}" y="${l[1]}" text-anchor="${l[2]}" style="font-size:12px">${esc(c.name)}</text>` : ""}</g>`; }).join("")}
+    <text class="ax" x="${W - pr}" y="${H - 4}" text-anchor="end">Entry price</text><text class="ax" x="${pl}" y="12">Traction (1–5)</text></svg>
+    <figcaption>Blue dots are paid products, red rings are free options. Traction is an estimate from visible signals.</figcaption></figure>`; };
+const map = compMap();
+const sComp = has(N.competitors) ? section("competition", "Competition", `${N.competitors.length} competitors and alternatives found.`,
+  `<div class="grid ${map ? "g2" : ""}">${map ? card(`<h3>Price vs traction</h3>${map}`) : ""}${card(`<h3>All competitors</h3><div class="scroll"><table><thead><tr><th>Name</th><th class="r">Price</th><th class="r">Traction</th></tr></thead><tbody>${N.competitors.map(c => `<tr><td>${link(c.url, esc(c.name))}${c.free ? ` <span class="badge b-NO-GO">Free</span>` : ""}${c.country ? ` <span class="badge b-neutral">${esc(c.country)}</span>` : ""}${c.gap ? `<div style="font-size:13px;color:var(--muted-fg)">${rt(c.gap)}</div>` : ""}</td><td class="r"><span class="num">${c.price_low === null || c.price_low === undefined ? '<span class="unk">unknown</span>' : (fmt(c.price_low, c.currency) || "") + (c.price_high ? "–" + fmt(c.price_high, c.currency) : "")}</span>${c.price_period ? `<span class="u">/${esc(c.price_period)}</span>` : ""}${fn(c.price_source)}${c.price_as_of ? `<div class="u" style="margin:0">${esc(c.price_as_of)}</div>` : ""}</td><td class="r">${c.traction ? `<span class="num" ${c.traction_note ? tipA("Traction", c.traction_note) + ' tabindex="0"' : ""}>${c.traction}/5</span>` : '<span class="unk">unknown</span>'}</td></tr>`).join("")}</tbody></table></div>`, 80)}</div>`) : "";
+
+const sVoice = has(N.customer_voice) ? section("voice", "What customers say", "Verbatim quotes from reviews and forums.",
+  `<div class="grid g2">${N.customer_voice.map((q, n) => card(`<blockquote class="quote">“${esc(q.quote)}”<cite>${q.pain ? esc(q.pain) + ", " : ""}${link(q.source, "source")}${fn(q.source)}</cite></blockquote>`, n * 50)).join("")}</div>`) : "";
+
+/* countries */
+const BC = V.by_country && typeof V.by_country === "object" ? V.by_country : null;
+const ctys = BC ? Object.keys(BC).filter(k => BC[k] && typeof BC[k] === "object") : [];
+const launch = V.launch_country || "";
+const ML = { tam: "TAM", sam: "SAM", som: "SOM (year 1)", price: "Price", variable_cost_per_unit: "Variable cost per unit", gross_margin_pct: "Gross margin", churn_monthly_pct: "Monthly churn", expected_lifetime: "Customer lifetime", conversion_rate_pct: "Conversion rate", cac: "CAC", ltv: "LTV", ltv_cac: "LTV : CAC", payback_months: "Payback (months)", fixed_costs_month: "Fixed costs / month", break_even_customers_per_month: "Break-even (customers/month)", time_to_first_revenue_weeks: "Time to first revenue (weeks)", demand_trend: "Demand trend", competitors_found: "Competitors found", competitor_price_range: "Competitor prices" };
+const MORDER = Object.keys(ML);
+const human = k => ML[k] || k.replace(/_/g, " ").replace(/^./, c => c.toUpperCase());
+const launchWhy = typeof V.launch_reason === "string" ? V.launch_reason : typeof BC?.recommended === "string" ? BC.recommended : "";
+const sCountry = ctys.length > 1 ? section("countries", "Countries", `Recommended launch market: <strong>${esc(CN[launch] || launch || "not set")}</strong>.${launchWhy ? " " + rt(launchWhy) : ""}`,
+  card(`<div class="scroll"><table><thead><tr><th>Metric</th>${ctys.map(c => `<th class="${c === launch ? "hl" : ""}">${esc(CN[c] || c)}${c === launch ? ` <span class="badge b-GO">${ic("check", 12)}Launch</span>` : ""}</th>`).join("")}</tr></thead><tbody>${[...new Set(ctys.flatMap(c => Object.keys(BC[c])))].map(k => `<tr><td>${esc(human(k))}</td>${ctys.map(c => `<td class="${c === launch ? "hl" : ""}">${k in BC[c] ? metric(BC[c][k], k) : '<span class="unk">n/a</span>'}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`)) : "";
+
+/* unit economics */
+const bullet = () => { if (lc === null) return ""; const mx = Math.max(5, lc * 1.2), W = 600, x = t => 10 + t / mx * (W - 20);
+  return `<h3>LTV : CAC</h3><figure class="chart grow" style="margin-bottom:var(--s3)"><svg viewBox="0 0 ${W} 80" role="img" aria-label="LTV to CAC ${lc}; healthy is 3 or more">
+    <rect x="${x(0)}" y="22" width="${x(1) - x(0)}" height="22" fill="var(--nogo-bg)" rx="6"/><rect x="${x(1)}" y="22" width="${x(3) - x(1)}" height="22" fill="var(--pivot-bg)"/><rect x="${x(3)}" y="22" width="${x(mx) - x(3)}" height="22" fill="var(--go-bg)" rx="6"/>
+    <rect class="bar" x="${x(0)}" y="29" width="${Math.max(x(lc) - x(0), 4)}" height="8" rx="4" fill="var(--primary)"/><line x1="${x(lc)}" x2="${x(lc)}" y1="16" y2="50" stroke="var(--primary)" stroke-width="3"/>
+    <text class="lv" x="${x(lc)}" y="11" text-anchor="middle">${lc}</text>${[0, 1, 3].map(t => `<text class="ax" x="${x(t)}" y="62" text-anchor="middle">${t}</text>`).join("")}
+    <text class="ax" x="${x(.5)}" y="77" text-anchor="middle">loses money</text><text class="ax" x="${x(2)}" y="77" text-anchor="middle">fragile</text><text class="ax" x="${x(Math.min(4, mx - .5))}" y="77" text-anchor="middle">healthy</text></svg></figure>`; };
+const scen = () => { const ss = (N.scenarios || []).filter(s => typeof s.revenue_month === "number"); if (!ss.length) return "";
+  const cur = N.currency || (I.price && I.price.currency) || "", mx = Math.max(...ss.map(s => Math.max(s.revenue_month, s.costs_month || 0)), 1), x0 = 130, bw = 380, rh = 62, W = 600, pl = t => plain(fmt(t, cur)) || "0";
+  return `<h3>Monthly scenarios</h3><figure class="chart grow"><svg viewBox="0 0 ${W} ${ss.length * rh}" role="img" aria-label="Revenue and costs per scenario">${ss.map((s, i) => { const y = i * rh, rv = s.revenue_month / mx * bw, cs = (s.costs_month || 0) / mx * bw;
+    return `<g class="hit" tabindex="0" ${tipA(s.name, `${s.customers_month ?? "?"} customers/month, revenue ${pl(s.revenue_month)}, costs ${pl(s.costs_month || 0)}${s.note ? "\n" + s.note : ""}`)}><text class="lb" x="0" y="${y + 20}">${esc(s.name)}</text><text class="ax" x="0" y="${y + 38}">${s.customers_month ?? "?"} customers/mo</text>
+      <rect class="bar" x="${x0}" y="${y + 8}" width="${Math.max(rv, 4)}" height="16" rx="8" fill="var(--primary)"/><text class="lv" x="${x0 + Math.max(rv, 4) + 8}" y="${y + 21}">${pl(s.revenue_month)}</text>
+      <rect class="bar" x="${x0}" y="${y + 30}" width="${Math.max(cs, 4)}" height="10" rx="5" fill="var(--muted-fg)" opacity=".45"/><text class="ax" x="${x0 + Math.max(cs, 4) + 8}" y="${y + 39}">${pl(s.costs_month || 0)} costs</text></g>`; }).join("")}</svg>
+    <figcaption>Blue: revenue per month. Grey: costs. Estimates unless a footnote says otherwise.</figcaption></figure>`; };
+/* what-if: live unit economics from the report's own metrics. Nothing here changes the verdict. */
+const WI = (() => {
+  const mv = k => obj(M[k]) ? (M[k].basis === "unknown" ? null : num(M[k].value)) : num(M[k]);
+  const price0 = mv("price") ?? (I.price ? I.price.amount : null), cac0 = mv("cac");
+  if (price0 === null || cac0 === null || price0 <= 0 || cac0 < 0) return null;
+  const code = c => typeof c === "string" && /^[A-Z]{3}$/.test(c) ? c : "";
+  const um = /^(USD|EUR|GBP|[A-Z]{3})\b/.exec(String((M.price && M.price.unit) || "")), cur = (um && code(um[1])) || code(I.price && I.price.currency) || code(N.currency) || code(M.cac && String(M.cac.unit || "").slice(0, 3));
+  const ltu = String((M.expected_lifetime && M.expected_lifetime.unit) || ""), per = String((I.price && I.price.period) || ""), pu = String((M.price && M.price.unit) || ""), churn = mv("churn_monthly_pct");
+  const sub = /purchase|achat|order|commande|time/i.test(ltu) ? false : /month|mois/i.test(ltu) ? true
+    : per === "one-off" || I.revenue_model === "one-off" ? false : /month|year|seat/.test(per) || I.revenue_model === "subscription" || /\/\s*(mo|month|yr|year|an|mois)\b/i.test(pu) || (churn !== null && churn > 0);
+  const pm = sub && (per === "year" || /\/\s*(yr|year|an)\b/i.test(pu)) ? 1 / 12 : 1;
+  let life0 = mv("expected_lifetime"), lifeSrc = "In the report";
+  if ((life0 === null || life0 <= 0) && sub && churn > 0) { life0 = Math.max(1, Math.min(120, Math.round(100 / churn))); lifeSrc = "From churn"; }
+  if (life0 === null || life0 <= 0) { life0 = sub ? 12 : 1; lifeSrc = "Assumed"; }
+  let mg0 = mv("gross_margin_pct"), mgSrc = "In the report";
+  if (mg0 === null) { const vc = mv("variable_cost_per_unit"); if (vc !== null && vc < price0) { mg0 = Math.round((price0 - vc) / price0 * 100); } else { mg0 = 80; mgSrc = "Assumed"; } }
+  mg0 = Math.min(100, Math.max(1, mg0));
+  const conv0 = mv("conversion_rate_pct") > 0 ? Math.min(100, mv("conversion_rate_pct")) : null, fx = mv("fixed_costs_month") !== null && mv("fixed_costs_month") >= 0 ? mv("fixed_costs_month") : null;
+  const colon = LANG === "fr" ? " :" : ":";
+  const money = x => plain(fmt(Math.abs(x) >= 100 ? Math.round(x) : Math.round(x * 100) / 100, cur)) || "0", r1 = x => short(Math.round(x * 10) / 10);
+  const lifeTxt = x => `${r1(x)} ${T((sub ? "month" : "purchase") + (x === 1 ? "" : "s"))}`, priceTxt = x => money(x) + (sub ? ` ${T(pm < 1 ? "/ year" : "/ month")}` : "");
+  /* slider ranges: 0.25x to 3x the report value, with a minimum span; the step keeps the report value exactly reachable */
+  const decs = v => { const s = String(v), i = s.indexOf("."); return i < 0 || /e/i.test(s) ? 0 : Math.min(2, s.length - i - 1); };
+  const mkS = (id, label, v0, lo, hi, txt, src, fine, rng) => { let step = Math.min(Math.pow(10, -decs(v0)), fine || 1); while ((hi - lo) / step > 2000) step *= 10;
+    const d = Math.max(0, -Math.floor(Math.log10(step) + 1e-9)), fix = x => +(+x).toFixed(d), min = fix(Math.floor(lo / step) * step), max = fix(Math.ceil(hi / step) * step);
+    return { id, label, v0: fix(Math.min(max, Math.max(min, v0))), min, max, step: fix(step), txt, src, rng: rng || txt }; };
+  const S = [mkS("price", "Price", price0, Math.max(price0 * .25, Math.pow(10, -decs(price0))), Math.max(price0 * 3, price0 + 5), priceTxt, "In the report", 0, money),
+    mkS("cac", "CAC", cac0, 0, Math.max(cac0 * 3, 10), money, "In the report"),
+    mkS("margin", "Gross margin", mg0, 1, 100, x => r1(x) + "%", mgSrc),
+    mkS("life", sub ? "Customer lifetime (months)" : "Customer lifetime (purchases)", life0, sub ? 1 : 1, sub ? Math.max(life0 * 3, 24) : Math.max(life0 * 3, 5), lifeTxt, lifeSrc, sub ? 0 : .1, r1)];
+  if (conv0 !== null) S.push(mkS("conv", "Conversion rate", conv0, Math.max(conv0 * .25, .1), Math.min(100, Math.max(conv0 * 3, conv0 + 2)), x => r1(x) + "%", "In the report", .1));
+  const sc0 = CD.profit && obj(CD.profit) ? num(obj(CD.profit.ltv_cac) ? CD.profit.ltv_cac.score : CD.profit.ltv_cac) : null;
+  const pct = s => (s.max > s.min ? (s.v0 - s.min) / (s.max - s.min) : 0).toFixed(4);
+  const tile = (id, k, extra = "", wide = false) => `<div class="wi-t${wide ? " wide" : ""}"><div class="wi-k">${k}</div><div class="wi-n num" id="wi-${id}"></div>${extra}<div class="wi-m" id="wi-${id}-m"></div></div>`;
+  const html = `<div class="card rv wi-card" style="margin-bottom:var(--s3)"><div class="wi-head"><div><h3>${ic("scale")} What if?</h3><p class="note" style="margin:0">Estimates for exploring; the verdict above is not recalculated.</p></div>
+    <button class="btn wi-reset" type="button" id="wi-reset" aria-label="${esc(T("Reset to the report's values"))}">${ic("rotate")}<span>Reset</span></button></div>
+    <div class="wi"><div class="wi-ctl">${S.map(s => `<div class="wi-f"><div class="wi-l"><label for="wi-${s.id}">${s.label}</label><output class="wi-v" id="wi-${s.id}-v" for="wi-${s.id}"></output></div>
+      <div class="wi-tr"><input class="wi-r" type="range" id="wi-${s.id}" min="${s.min}" max="${s.max}" step="${s.step}" value="${s.v0}" aria-describedby="wi-${s.id}-h"><i class="wi-0" style="--b:${pct(s)}" aria-hidden="true"></i></div>
+      <div class="wi-h" id="wi-${s.id}-h"><span>${esc(T(s.src))}${colon} ${esc(s.txt(s.v0))}</span><span>${esc(s.rng(s.min))} – ${esc(s.rng(s.max))}</span></div></div>`).join("")}</div>
+    <div class="wi-out">${tile("ltv", "LTV")}${tile("ratio", "LTV : CAC", `<div class="wi-scale" aria-hidden="true"><span></span><span></span><span></span><i id="wi-mark"></i></div><div class="wi-ax" aria-hidden="true"><b style="left:0">0</b><b style="left:16.67%">1</b><b style="left:50%">3</b><b style="left:100%">6+</b></div>`)}
+      ${tile("pay", "Payback")}${fx !== null ? tile("be", "Break-even") : conv0 !== null ? tile("ecac", "Effective CAC") : ""}
+      ${tile("sub", "Projected sub-score", `<div class="wi-dots" id="wi-dots" aria-hidden="true">${"<i></i>".repeat(5)}</div>`, (fx !== null) !== (conv0 !== null))}${fx !== null && conv0 !== null ? tile("ecac", "Effective CAC") : ""}</div></div>
+    <p class="sr-only" id="wi-live" aria-live="polite"></p></div>`;
+  const wire = () => {
+    const el = id => document.getElementById("wi-" + id), set = (id, t, cls) => { const e = el(id); if (!e) return; e.textContent = t; if (cls !== undefined) e.className = "wi-m " + cls; };
+    const inp = Object.fromEntries(S.map(s => [s.id, el(s.id)]));
+    let liveT = null;
+    const update = quiet => {
+      const v = {}; S.forEach(s => { const x = +inp[s.id].value; v[s.id] = x; const t = s.txt(x); inp[s.id].setAttribute("aria-valuetext", t);
+        inp[s.id].style.setProperty("--p", (s.max > s.min ? (x - s.min) / (s.max - s.min) : 0).toFixed(4)); const o = el(s.id + "-v"); o.textContent = t; o.classList.toggle("chg", x !== s.v0); });
+      const ec = conv0 !== null ? v.cac * conv0 / v.conv : v.cac, unit = v.price * pm * v.margin / 100, ltv = unit * v.life;
+      const ratio = ec > 0 ? ltv / ec : Infinity, pay = unit > 0 ? ec / unit : Infinity, s5 = ratio < 1 ? 1 : ratio < 2 ? 2 : ratio < 3 ? 3 : ratio <= 5 ? 4 : 5;
+      const rTxt = Number.isFinite(ratio) ? r1(ratio) : "∞";
+      set("ltv", money(ltv)); set("ltv-m", T("Lifetime gross profit per customer"));
+      set("ratio", rTxt); set("ratio-m", T(ratio < 1 ? "Each paid customer loses money" : ratio < 3 ? "Positive but fragile" : "Healthy"), ratio < 1 ? "bad" : ratio < 3 ? "ok" : "good");
+      el("mark").style.left = `calc(${(Math.min(Number.isFinite(ratio) ? ratio : 6, 6) / 6 * 100).toFixed(2)}% - 2px)`;
+      set("pay", !Number.isFinite(pay) ? T("never") : sub ? `${r1(pay)} ${T("months")}` : `${r1(pay)} ${T("purchases")}`);
+      set("pay-m", ec <= 0 ? T("Free to acquire") : pay > v.life ? T("Longer than the customer lifetime") : T(sub ? "Months to earn back the CAC" : "Purchases to earn back the CAC"), ec > 0 && pay > v.life ? "bad" : "");
+      if (fx !== null) { set("be", unit > 0 ? short(Math.ceil(fx / unit)) : T("never")); set("be-m", T("Paying customers needed per month")); }
+      if (conv0 !== null) { set("ecac", money(ec)); set("ecac-m", T("Scaled by the conversion rate")); }
+      set("sub", `${s5}/5`); set("sub-m", `${T("LTV : CAC sub-score")}${sc0 !== null ? ` · ${T("Report")}${colon} ${short(sc0)}/5` : ""}`, s5 <= 1 ? "bad" : s5 <= 3 ? "ok" : "good");
+      el("dots").className = "wi-dots s" + s5; [...el("dots").children].forEach((d, i) => d.classList.toggle("on", i < s5));
+      clearTimeout(liveT); if (quiet !== true) liveT = setTimeout(() => { el("live").textContent = `LTV ${money(ltv)}, LTV : CAC ${rTxt}, ${T("Projected sub-score")} ${s5}/5.`; }, 600);
+    };
+    S.forEach(s => inp[s.id].addEventListener("input", () => update()));
+    el("reset").addEventListener("click", () => { S.forEach(s => { inp[s.id].value = s.v0; }); update(); });
+    update(true);
+  };
+  return { html, wire };
+})();
+const mk = Object.keys(M).sort((a, b) => (MORDER.indexOf(a) + 1 || 99) - (MORDER.indexOf(b) + 1 || 99));
+const sEcon = (mk.length || has(N.scenarios)) ? section("economics", "Unit economics", "What a customer is worth, what one costs, and how many you need.",
+  `${WI ? WI.html : ""}<div class="grid g2">${card(`${bullet()}${scen()}`)}${card(`<h3>All metrics</h3><div class="scroll"><table><thead><tr><th>Metric</th><th class="r">Value</th></tr></thead><tbody>${mk.map(k => { const m = M[k] || {}; return `<tr><td>${esc(human(k))}${m.as_of ? ` <span class="u">(${esc(m.as_of)})</span>` : ""}${m.reasoning && m.basis === "estimate" ? `<div style="font-size:13px;color:var(--muted-fg)">${esc(m.reasoning)}</div>` : ""}</td><td class="r">${metric(m, k)}</td></tr>`; }).join("")}</tbody></table></div>`, 80)}</div>`) : "";
+
+/* risks */
+const sRisk = has(N.risks) ? (() => { const rs = N.risks, LV = { L: 0, M: 1, H: 2 }, cs = 96, ox = 64, oy = 6; let cells = "";
+  for (let li = 0; li < 3; li++) for (let ii = 0; ii < 3; ii++) cells += `<rect x="${ox + ii * cs}" y="${oy + (2 - li) * cs}" width="${cs - 4}" height="${cs - 4}" rx="10" fill="var(--nogo-fill)" opacity="${(.06 + (li + 1) * (ii + 1) * .05).toFixed(2)}"/>`;
+  const bk = {}, marks = rs.map((r, i) => { const li = LV[r.likelihood] ?? 1, ii = LV[r.impact] ?? 1, key = li + "-" + ii, k = bk[key] = (bk[key] || 0) + 1, cx = ox + ii * cs + 24 + ((k - 1) % 3) * 24, cy = oy + (2 - li) * cs + 28 + Math.floor((k - 1) / 3) * 28;
+    return `<g class="hit" tabindex="0" ${tipA(`Risk ${i + 1}`, r.risk)}><circle cx="${cx}" cy="${cy}" r="11" fill="var(--card)" stroke="var(--nogo)" stroke-width="2"/><text x="${cx}" y="${cy + 4}" text-anchor="middle" style="font:600 11px var(--mono);fill:var(--fg)">${i + 1}</text></g>`; }).join("");
+  const ax = ["Low", "Med", "High"].map((a, i) => `<text class="ax" x="${ox + i * cs + cs / 2}" y="${oy + 3 * cs + 14}" text-anchor="middle">${a}</text><text class="ax" x="${ox - 8}" y="${oy + (2 - i) * cs + cs / 2}" text-anchor="end">${a}</text>`).join("");
+  return section("risks", "Risks", null, `<div class="grid g2">${card(`<h3>Likelihood vs impact</h3><figure class="chart"><svg viewBox="0 0 360 350" role="img" aria-label="Risk heatmap" style="max-width:380px;margin:0 auto">${cells}${marks}${ax}<text class="ax" x="${ox + 1.5 * cs}" y="${oy + 3 * cs + 38}" text-anchor="middle">Impact</text><text class="ax" x="0" y="${oy + 10}">Likelihood</text></svg></figure>`)}
+    ${card(`<h3>Risks and what to do</h3><div class="scroll"><table><tbody>${rs.map((r, i) => `<tr><td class="num" style="width:28px">${i + 1}</td><td><strong>${rt(r.risk)}</strong><div style="font-size:14px;color:var(--muted-fg)">${rt(r.mitigation || "")}</div></td><td class="r"><span class="badge b-neutral" title="Likelihood / impact">${r.likelihood} / ${r.impact}</span></td></tr>`).join("")}</tbody></table></div>`, 80)}</div>`); })() : "";
+
+/* test */
+const kc = V.kill_criteria || [];
+const sTest = (has(N.test_plan) || V.cheapest_test || kc.length) ? section("test", "Next step: 7-day test", V.cheapest_test ? rt(V.cheapest_test) : null,
+  `<div class="grid ${has(N.test_plan) && kc.length ? "g2" : ""}">${has(N.test_plan) ? card(`<h3>Plan</h3><ol class="tl">${N.test_plan.map(t => `<li><span class="w">${esc(t.when)}</span><span class="node"></span><div><div>${rt(t.step)}</div>${t.verify ? `<div class="vf">${ic("check", 14)} ${rt(t.verify)}</div>` : ""}</div></li>`).join("")}</ol>`) : ""}
+   ${kc.length ? card(`<div class="stop"><h3>${ic("alert")}Stop if</h3><ul>${kc.map(k => `<li>${rt(k)}</li>`).join("")}</ul></div>`, 80) : ""}</div>`) : "";
+
+/* pre-mortem (narrative.premortem) */
+const PML = { H: ["NO-GO", "High likelihood"], M: ["PIVOT", "Medium likelihood"], L: ["neutral", "Low likelihood"] };
+const linkLabel = k => { const s = String(k || ""); return KS[s] || SUB[s] || LB[s] || s.replace(/_/g, " "); };
+/* go to market (deepdive 1.0): personas, ways in, promotion angles, landing page, branding */
+const arr = (x, n) => Array.isArray(x) ? x.filter(e => e && typeof e === "object").slice(0, n) : [];
+const PER = arr(N.personas, 3), STR = arr(N.strategies, 3), PRO = arr(N.promotion, 5), LND = N.landing && typeof N.landing === "object" ? N.landing : null;
+const BR = N.branding && typeof N.branding === "object" ? N.branding : null, BRN = BR ? arr(BR.names, 5) : [];
+const strs = (x, n) => Array.isArray(x) ? x.filter(e => typeof e === "string" && e).slice(0, n) : [];
+const dlRows = rows => { const r = rows.filter(([, v]) => v); return r.length ? `<dl class="facts">${r.map(([k, v]) => `<dt>${k}</dt><dd class="gtm-u">${v}</dd>`).join("")}</dl>` : ""; };
+const persona = (p, n) => card(`<h3 class="gtm-h gtm-u">${esc(p.name)}</h3>${p.role ? `<p class="sub gtm-u" style="margin:0 0 10px">${esc(p.role)}</p>` : ""}${p.context ? `<p class="gtm-u" style="margin:0 0 10px">${rt(p.context)}</p>` : ""}
+  <div class="gtm-l">In their words</div>${arr(p.pain_quotes, 6).map(q => `<blockquote class="gq gtm-u">“${esc(q.quote)}”${fn(q.url)}</blockquote>`).join("")}
+  ${dlRows([["Uses today", esc(p.uses_today || "")], ["Pays today", esc(p.pays_today || "")], ["Starts looking when", esc(p.trigger || "")], ["Objections", strs(p.objections, 3).map(esc).join(" · ")]])}
+  ${strs(p.where, 5).length ? `<div class="gtm-l">Reach them</div><div class="chips">${strs(p.where, 5).map(w => `<span class="chip">${esc(w)}</span>`).join("")}</div>` : ""}`, n * 70);
+const strategy = (x, n) => { const sa = num(x.score_after); return `<div class="card rv${x.recommended === true ? " gtm-rec" : ""}" style="--d:${n * 70}ms">
+  <div class="delta">${x.recommended === true ? `<span class="badge b-GO">${ic("check", 13)}Recommended</span>` : ""}${sa !== null ? vbadge(clampN(sa)) : ""}</div>
+  <h3 class="gtm-h gtm-u">${esc(x.name)}</h3>${x.why ? `<p class="gtm-u" style="margin:0 0 8px">${rt(x.why)}</p>` : ""}
+  ${dlRows([["Segment", esc(x.segment || "")], ["Channel", esc(x.channel || "")], ["Price", esc(x.price || "")], ["First 10 customers", esc(x.cost_first_10 || "")], ["Risks", esc(x.risks || "")]])}</div>`; };
+const clampN = v => Math.max(0, Math.min(100, Math.round(v)));
+const angle = (a, n) => card(`<div class="gtm-l" style="margin-top:0">${esc(a.angle || "")}${a.channel ? ` · ${esc(a.channel)}` : ""}</div><h3 class="gtm-h gtm-u">${esc(a.headline || "")}</h3>
+  ${dlRows([["Persona", esc(a.persona || "")], ["Pain", rt(a.pain || "")], ["Proof", `${rt(a.proof || "")}${fn(a.proof_source)}`]])}
+  ${arr(a.beat, 3).length ? `<div class="gtm-l">Must beat</div>${arr(a.beat, 3).map(b => `<blockquote class="gq gtm-u"><strong style="font-style:normal">${esc(b.competitor)}:</strong> “${esc(b.message)}”${fn(b.url)}</blockquote>`).join("")}` : ""}`, n * 60);
+const CHK = { available: ["st-ok", "check"], clear: ["st-ok", "check"], taken: ["st-bad", "x"], conflict: ["st-bad", "x"], unknown: ["st-unk", "alert"] };
+const chk = v => { const c = CHK[v] || CHK.unknown; return `<span class="${c[0]}">${ic(c[1], 14)} ${esc(CHK[v] ? v : "unknown")}</span>`; };
+const pos = BR && BR.positioning && typeof BR.positioning === "object" ? BR.positioning : null;
+const brandCard = BR ? card(`${pos ? `<div class="gtm-l" style="margin-top:0">Positioning</div><p class="pos gtm-u">For <strong>${esc(pos.for || "")}</strong>, the <strong>${esc(pos.category || "")}</strong> that ${esc(pos.difference || "")}${pos.proof ? `, because ${esc(pos.proof)}` : ""}.</p>` : ""}
+  ${BRN.length ? `<div class="gtm-l">Names, checked by search</div><div class="scroll"><table><thead><tr><th>Name</th><th>.com</th><th>Local domain</th><th>Trademark</th><th>Handles</th><th>Checked</th></tr></thead><tbody>${BRN.map(x => `<tr><td class="gtm-u"><strong>${esc(x.name)}</strong></td><td>${chk(x.domain_com)}</td><td>${x.domain_local ? chk(x.domain_local) : "–"}</td><td>${chk(x.trademark)}${fn(x.trademark_source)}</td><td class="gtm-u">${esc(x.handles || "")}</td><td class="num">${esc(x.checked || "")}</td></tr>`).join("")}</tbody></table></div>` : ""}
+  ${strs(BR.tone, 5).length ? `<div class="gtm-l">Tone</div><div class="chips">${strs(BR.tone, 5).map(t => `<span class="chip">${esc(t)}</span>`).join("")}</div>` : ""}`) : "";
+const landCard = LND && LND.headline ? card(`<div class="gtm-l" style="margin-top:0">Landing page for the test</div><h3 class="gtm-h gtm-u">${esc(LND.headline)}</h3>${LND.subhead ? `<p class="gtm-u" style="margin:0 0 10px">${esc(LND.subhead)}</p>` : ""}${strs(LND.sections, 5).length ? `<ol class="gtm-u">${strs(LND.sections, 5).map(x => `<li>${esc(x)}</li>`).join("")}</ol>` : ""}${LND.cta ? `<span class="badge b-neutral">${esc(LND.cta)}</span>` : ""}`) : "";
+const sGtm = (PER.length || STR.length || PRO.length || BR) ? section("gtm", "Go to market", "Who to sell to, how to get in, what to say, and under what name. Built from the evidence above.",
+  `${PER.length ? `<h3 class="gtm-l">Personas</h3><div class="grid ${PER.length > 2 ? "g3" : "g2"}">${PER.map(persona).join("")}</div>` : ""}
+   ${STR.length ? `<h3 class="gtm-l" style="margin-top:var(--s4)">Ways in</h3><div class="grid ${STR.length > 2 ? "g3" : "g2"}">${STR.slice().sort((a, b) => (b.recommended === true) - (a.recommended === true)).map(strategy).join("")}</div>` : ""}
+   ${PRO.length ? `<h3 class="gtm-l" style="margin-top:var(--s4)">Promotion angles</h3><div class="grid g2">${PRO.map(angle).join("")}${landCard}</div>` : landCard ? `<div style="margin-top:var(--s4)">${landCard}</div>` : ""}
+   ${brandCard ? `<h3 class="gtm-l" style="margin-top:var(--s4)">Branding</h3>${brandCard}` : ""}`) : "";
+/* answers and type checks (1.0): what the founder said, what it fed, and the 2 checks of the idea's type */
+const ANS = Array.isArray(I.answers) ? I.answers.filter(a => a && typeof a === "object" && a.question).slice(0, 10) : [];
+const TCS = Array.isArray(V.type_checks) ? V.type_checks.filter(c => c && typeof c === "object" && TC_L[c.check]).slice(0, 2) : [];
+const TCR = { hit: ["b-NO-GO", "x", "Hit"], clear: ["b-GO", "check", "Clear"], unknown: ["b-neutral", "alert", "Not checked"] };
+const qaList = list => `<ul class="qa">${list.map(a => `<li><span class="qa-q">${esc(a.question)}</span><span class="qa-v">${a.answer ? esc(a.answer) : `<span class="unk">${T("Still assumed")}</span>`}</span>${a.effect ? `<span class="qa-e">${esc(a.effect)}</span>` : ""}${Array.isArray(a.feeds) && a.feeds.length ? `<span class="qa-f">${a.feeds.slice(0, 6).map(f => `<span>${esc(String(f).replace(/_/g, " "))}</span>`).join("")}</span>` : ""}</li>`).join("")}</ul>`;
+const intake = ANS.filter(a => a.stage !== "follow_up"), follow = ANS.filter(a => a.stage === "follow_up");
+const sAbout = (ANS.length || TCS.length) ? section("about", "Answers and checks", "What you told us, and the checks for this kind of business.",
+  `<div class="grid ${(ANS.length && TCS.length) ? "g2" : ""}">${ANS.length ? card(`${intake.length ? `<h3>${ic("users")} Your answers</h3>${qaList(intake)}` : ""}${follow.length ? `<h3 style="margin-top:var(--s3)">${ic("search")} After the research</h3>${qaList(follow)}` : ""}`) : ""}
+   ${TCS.length ? card(`<h3>${ic("layers")} Checks for this type${ITYPE ? `: ${TYPE_L[ITYPE]}` : ""}</h3>${TCS.map(c => { const r = TCR[c.result] || TCR.unknown; return `<div class="tc"><span class="tc-k">${esc(TC_L[c.check])}</span><span><span class="badge ${r[0]}">${ic(r[1], 13)}${r[2]}</span></span><span class="tc-n">${rt(c.note || "")}${fn(c.source)}</span></div>`; }).join("")}`, 80) : ""}</div>`) : "";
+const sPremortem = N.premortem.length ? section("premortem", "Pre-mortem", "It's 12 months later and it failed. The most likely reasons.",
+  `<div class="grid g3">${N.premortem.map((p, n) => { const [b, l] = PML[p.likelihood]; return `<div class="card rv pm" style="--d:${n * 80}ms"><div class="pm-top"><span class="kf-n">${n + 1}</span><span class="badge b-${b}">${ic("alert", 13)}${l}</span></div>
+    <div class="pm-c">${rt(p.cause)}</div>${p.early_signal ? `<div class="pm-s">${ic("flag", 14)}<span><strong>Early signal:</strong> <span class="pm-d">${rt(p.early_signal)}</span></span></div>` : ""}
+    ${p.linked_to ? `<div><span class="chip">${ic("target", 12)}${esc(T("linked to"))} ${esc(T(linkLabel(p.linked_to)))}</span></div>` : ""}</div>`; }).join("")}</div>`) : "";
+const body = [sSummary, sRescue, sPremortem, sTest, sGtm, sAbout, sEvidence, sMarket, sComp, sVoice, sEcon, sCountry, sRisk, sScore].join("");
+const TIER = { primary: "primary", secondary: "secondary", tertiary: "tertiary" };
+const tiers = SRC.reduce((a, s) => { if (TIER[s.tier]) a[s.tier] = (a[s.tier] || 0) + 1; return a; }, {});
+const tierSub = Object.keys(tiers).length ? ` ${["primary", "secondary", "tertiary"].filter(t => tiers[t]).map(t => `${tiers[t]} ${t}`).join(", ")}.` : "";
+/* T() is defined above the sections, but the FR dictionary lookups for tier labels happen at render time: fine, FR is a const already evaluated */
+const domains = new Set(SRC.map(s => { try { return new URL(s.url).hostname.replace(/^www\./, ""); } catch (e) { return s.url; } })).size;
+const sSrc = SRC.length ? section("sources", "Sources", `${SRC.length} sources from ${domains} ${domains === 1 ? "domain" : "domains"}.${tierSub} Every sourced number links here.`,
+  card(`<ol class="src">${SRC.map((s, i) => `<li id="src-${i + 1}">${link(s.url, esc(s.title || String(s.url).replace(/^https?:\/\/(www\.)?/, "").slice(0, 70)))}${s.supports ? `: ${esc(s.supports)}` : ""}${TIER[s.tier] ? ` <span class="tier t-${s.tier}">${T(TIER[s.tier])}</span>` : ""}${s.published ? ` <span class="u">${esc(String(s.published))}</span>` : ""}</li>`).join("")}</ol>`)) : "";
+
+const ORDER = [...(body + sSrc).matchAll(/<section id="([^"]+)"/g)].map(m => m[1]);
+const logo = `<svg viewBox="0 0 1024 1024" aria-hidden="true"><rect width="1024" height="1024" rx="224" fill="#1E40AF"/><path d="M512 150c-150 0-262 112-262 258 0 92 44 160 100 214 30 29 46 62 46 98v38h232v-38c0-36 16-69 46-98 56-54 100-122 100-214 0-146-112-258-262-258z" fill="#fff"/><g stroke="#1E40AF" stroke-width="44" stroke-linecap="round"><path d="M380 340l80 80M460 340l-80 80M564 340l80 80M644 340l-80 80"/></g><rect x="396" y="776" width="232" height="60" rx="26" fill="#BFDBFE"/></svg>`;
+app.innerHTML = `<header class="top"><div class="topbar"><a class="brand" href="https://github.com/RemiPelloux/kill-my-idea" target="_blank" rel="noopener">${logo}kill-my-idea</a>
+  <span class="t">${esc(I.title || "")}</span><span class="badge b-${esc(V.verdict)}">${ic(VICON[V.verdict], 14)}${esc(V.verdict || "")} <span class="num">${V.score ?? "?"}</span></span>
+  <button class="btn" type="button" id="card" aria-label="Download a shareable verdict image">${ic("share")}<span>Share card</span></button><button class="btn" type="button" id="print" aria-label="Print or save as PDF">${ic("printer")}<span>Save PDF</span></button></div>
+  <nav class="tabs" aria-label="Report sections">${TABS.slice().sort((x, y) => ORDER.indexOf(x[0]) - ORDER.indexOf(y[0])).map(([id, t]) => `<a href="#${id}">${esc(t)}</a>`).join("")}</nav></header>
+  <main>${hero}${body}${sSrc}</main>
+  <footer>Generated by kill-my-idea. Sourced numbers link to a footnote, estimates show their reasoning on hover, and anything not found is marked unknown. Research, not financial advice.${runLine}</footer>`;
+translateUI(app);
+if (WI) WI.wire();
+document.getElementById("print").addEventListener("click", () => print());
+/* share card: 1200x675 PNG drawn locally, nothing is uploaded */
+document.getElementById("card").addEventListener("click", async () => {
+  try { await document.fonts.ready; } catch (e) {}
+  const W = 1200, H = 675, cv = document.createElement("canvas"); cv.width = W * 2; cv.height = H * 2; const g = cv.getContext("2d"); g.scale(2, 2);
+  const COL = { "GO": ["#15803D", "#22C55E", "#DCFCE7"], "PIVOT": ["#C2410C", "#F59E0B", "#FFEDD5"], "NO-GO": ["#DC2626", "#EF4444", "#FEE2E2"] }[V.verdict];
+  const SANS = '"Fira Sans", system-ui, sans-serif', MONO = '"Fira Code", ui-monospace, monospace';
+  const wrap = (text, x, y, maxW, lh, maxLines) => { const words = String(text || "").split(/\s+/); let line = "", n = 0;
+    for (const w of words) { const t = line ? line + " " + w : w; if (g.measureText(t).width > maxW && line) { g.fillText(line, x, y + n * lh); line = w; if (++n >= maxLines - 1) { line = words.slice(words.indexOf(w)).join(" "); while (g.measureText(line + "…").width > maxW && line.length) line = line.slice(0, -1); g.fillText(line + (line.length < words.slice(words.indexOf(w)).join(" ").length ? "…" : ""), x, y + n * lh); return; } } else line = t; }
+    g.fillText(line, x, y + n * lh); };
+  g.fillStyle = "#F8FAFC"; g.fillRect(0, 0, W, H);
+  g.fillStyle = "#FFFFFF"; g.strokeStyle = "#E2E8F0"; g.lineWidth = 2; g.beginPath(); g.roundRect(40, 40, W - 80, H - 80, 24); g.fill(); g.stroke();
+  const cx = 930, cy = 300, r = 150; g.lineCap = "round"; g.lineWidth = 26;
+  g.strokeStyle = "#E9EEF6"; g.beginPath(); g.arc(cx, cy, r, 0, Math.PI * 2); g.stroke();
+  g.strokeStyle = COL[1]; g.beginPath(); g.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (V.score / 100)); g.stroke();
+  g.fillStyle = "#0F172A"; g.textAlign = "center"; g.font = `600 110px ${MONO}`; g.fillText(String(V.score), cx, cy + 34);
+  g.fillStyle = "#475569"; g.font = `500 22px ${SANS}`; g.fillText(T("out of 100"), cx, cy + 74);
+  g.fillStyle = COL[2]; g.beginPath(); g.roundRect(cx - 110, cy + r + 34, 220, 64, 16); g.fill();
+  g.fillStyle = COL[0]; g.font = `700 34px ${SANS}`; g.fillText(V.verdict, cx, cy + r + 78);
+  g.textAlign = "left"; g.fillStyle = "#475569"; g.font = `600 22px ${SANS}`; g.fillText("kill-my-idea", 90, 115);
+  g.fillStyle = "#0F172A"; g.font = `700 50px ${SANS}`; wrap(I.title || "", 90, 185, 640, 60, 3);
+  const top = findings[0] || {}; g.fillStyle = "#334155"; g.font = `500 26px ${SANS}`;
+  wrap(plain(String(top.title || "").replace(/\*\*/g, "")) + (top.detail ? ": " + plain(String(top.detail).replace(/\*\*/g, "")) : ""), 90, 410, 640, 36, 4);
+  g.fillStyle = "#1E40AF"; g.font = `600 22px ${SANS}`; g.fillText("github.com/RemiPelloux/kill-my-idea", 90, H - 80);
+  cv.toBlob(b => { const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = `${String(I.slug || "kill-my-idea").replace(/[^a-z0-9-]/gi, "").slice(0, 60) || "kill-my-idea"}-${V.verdict}-${V.score}.png`; document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); }, "image/png");
+});
+addEventListener("beforeprint", () => document.querySelectorAll("details.crit").forEach(d => { d.open = true; }));
+
+/* tooltips */
+const tip = document.getElementById("tip");
+const show = (el, x, y) => { tip.replaceChildren(); const t = el.getAttribute("data-tip-t"); if (t) { const b = document.createElement("b"); b.textContent = t; tip.append(b); } tip.append(document.createTextNode(el.getAttribute("data-tip") || "")); tip.style.opacity = 1; const r = tip.getBoundingClientRect(); tip.style.left = Math.min(x + 14, innerWidth - r.width - 10) + "px"; tip.style.top = Math.max(y - r.height - 12, 10) + "px"; };
+let tipQ = null;
+document.addEventListener("mousemove", e => { if (tipQ) return; const { target, clientX, clientY } = e; tipQ = requestAnimationFrame(() => { tipQ = null; const el = target.closest && target.closest("[data-tip]"); if (el) show(el, clientX, clientY); else if (tip.style.opacity !== "0") tip.style.opacity = 0; }); }, { passive: true });
+document.addEventListener("focusin", e => { const el = e.target.closest("[data-tip]"); if (el) { const b = el.getBoundingClientRect(); show(el, b.right, b.top); } });
+document.addEventListener("focusout", () => { tip.style.opacity = 0; });
+
+/* active tab follows the section in view */
+const links = [...document.querySelectorAll(".tabs a")];
+if ("IntersectionObserver" in window) {
+  /* only the tab strip scrolls sideways; never the page */
+  const strip = document.querySelector(".tabs"); let cur = "";
+  const tio = new IntersectionObserver(es => es.forEach(en => { if (!en.isIntersecting || cur === en.target.id) return; cur = en.target.id;
+    links.forEach(a => { const on = a.getAttribute("href") === "#" + cur; a.classList.toggle("on", on); if (on && strip) strip.scrollLeft = a.offsetLeft - strip.clientWidth / 2 + a.offsetWidth / 2; }); }), { rootMargin: "-25% 0px -65% 0px" });
+  document.querySelectorAll("main section").forEach(s => tio.observe(s));
+}
+
+/* motion: ring count-up, verdict pop, cards stagger in once. A timer and printing always force the final state. */
+if (!matchMedia("(prefers-reduced-motion: reduce)").matches && "IntersectionObserver" in window) {
+  document.documentElement.classList.add("motion");
+  const arc = document.querySelector(".ring-arc"), num = document.querySelector(".ring-num"), vd = document.querySelector(".verdict");
+  const target = V.score ?? 0, c = arc ? +arc.dataset.c : 0, dur = 1100, ease = t => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+  let t0 = null, done = false;
+  const paint = v => { if (arc) arc.setAttribute("stroke-dashoffset", (c * (1 - v * target / 100)).toFixed(1)); if (num) num.textContent = Math.round(v * target); };
+  const finish = () => { if (done) return; done = true; paint(1); if (vd) vd.classList.add("in"); };
+  const frame = now => { if (done) return; t0 ??= now; const p = Math.min((now - t0) / dur, 1); paint(ease(p)); if (p < 1) requestAnimationFrame(frame); else finish(); };
+  paint(0); setTimeout(() => requestAnimationFrame(frame), 200); setTimeout(finish, 200 + dur + 300);
+  const rio = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.classList.add("in"); en.target.querySelectorAll(".grow").forEach(g => g.classList.add("in")); rio.unobserve(en.target); } }), { threshold: .12 });
+  document.querySelectorAll(".rv").forEach(el => rio.observe(el));
+  addEventListener("beforeprint", () => { finish(); document.querySelectorAll(".rv,.grow").forEach(el => el.classList.add("in")); });
+}
+} catch (e) { fail("This report could not be displayed", "The data in report-data.js has an unexpected shape (" + (e && e.message || e) + "). Run /kill-my-idea:kill again."); }
+};
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", main, { once: true }); else main();
+})();
+</script>
+</body>
+</html>

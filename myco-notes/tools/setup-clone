@@ -1,0 +1,3 @@
+#!/bin/sh
+# setup-clone: launcher for setup_clone.py (the implementation, shared by Linux, macOS and Windows).
+exec "$(cd "$(dirname "$0")" && pwd -P)/_run" setup_clone.py "$@"
